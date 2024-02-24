@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+div[data-testid="table-element"] > div {
+  display: none;
+}
+
+@layer utilities {
+  .light-blue-btn {
+    display: flex;
+    padding: 12px 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    align-self: stretch;
+    border-radius: 8px;
+    background: transparent;
+    color: #2555e3;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 150%;
+  }
+  .light-blue-btn-disable {
+    cursor: no-drop;
+    display: flex;
+    padding: 12px 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    align-self: stretch;
+    border-radius: 8px;
+    background: transparent;
+    color: #7f7f7f;
+    font-size: 16px;
+    font-style: normal;
+    background: #e2e2e2;
+    font-weight: 500;
+    line-height: 150%;
+    border: 1px solid #e2e2e2;
+  }
+  .light-blue-btn:hover {
+    background: #e9eeff;
+    color: #2555e3;
+  }
+}
