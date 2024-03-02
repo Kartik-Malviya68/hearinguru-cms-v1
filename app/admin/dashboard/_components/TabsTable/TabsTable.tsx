@@ -1,106 +1,141 @@
-import { Datepicker, Dropdown, Pagination } from "flowbite-react";
+import { Badge, Datepicker, Dropdown, Pagination } from "flowbite-react";
 import React, { useState } from "react";
 import { IoInformationCircleSharp } from "react-icons/io5";
 import { IoIosSearch } from "react-icons/io";
-
+import { DateRangePicker, Stack } from "rsuite";
+import "rsuite/dist/rsuite-no-reset.min.css";
+import {
+  useReactTable,
+  createColumnHelper,
+  ColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getExpandedRowModel,
+  getFilteredRowModel,
+} from "@tanstack/react-table";
 import ConsultanciesTable from "../ConsultanciesTable/ConsultanciesTable";
+import { consultanciesTable } from "../ConsultanciesTable/data";
+import FilterDropDown from "../FilterDropDown/FilterDropDown";
 
 function TabsTable() {
-  const [currentPage, setCurrentPage] = useState(1);
+  const columnHelper =
+    createColumnHelper<ConsultanciesTableTypes.ConsultanciesTable>();
+  const [columnFilters, setColumnFilters] = useState([]);
+  const columns = [
+    columnHelper.accessor("id", {
+      header: () => "ID",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("name", {
+      header: () => "Name",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("dateAndTime", {
+      header: () => "DATE & TIME",
+      cell: (info) => info.getValue().toLocaleString("en-US"),
+    }),
+    columnHelper.accessor("phoneNumber", {
+      header: () => "Phone Number",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("consultancyType", {
+      header: () => "Consultancy Type",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("slot", {
+      header: () => "Slot",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("status", {
+      header: () => "Status",
+      cell: (info) => (
+        <Badge
+          style={{ width: "fit-content" }}
+          color={
+            { Pending: "purple", "Not Converted": "gray", Converted: "green" }[
+              info.getValue()
+            ]
+          }
+        >
+          {info.getValue()}
+        </Badge>
+      ),
+    }),
+  ];
 
-  const onPageChange = (page: number) => setCurrentPage(page);
+  const table = useReactTable({
+    data: consultanciesTable,
+    columns,
+    state: {
+      columnFilters,
+    },
+    getFilteredRowModel: getFilteredRowModel(),
+    getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
 
+    initialState: {
+      pagination: {
+        pageIndex: 0,
+        pageSize: 6,
+      },
+    },
+  });
+  const onPageChange = (page: number) => {
+    table.setState((old) => {
+      return {
+        ...old,
+        pagination: {
+          ...old.pagination,
+          pageIndex: page - 1,
+        },
+      };
+    });
+  };
   return (
     <>
       <div className="flex justify-between gap-5 w-full">
         <div className="flex items-center">
-          <button className="p-3 flex items-center text-blue-500 text-sm font-medium leading-150 rounded bg-[#e4efff] gap-[10px]">
+          <button
+            onClick={() =>
+              setColumnFilters([{ id: "status", value: "Pending" }] as any)
+            }
+            className="p-3 flex items-center text-blue-500 text-sm font-medium leading-150 rounded bg-[#e4efff] gap-[10px]"
+          >
             Pending
             <IoInformationCircleSharp />
           </button>
-          <button className="p-3 flex items-center text-gray-600 text-sm font-medium leading-150 rounded  gap-[10px]">
+          <button
+            onClick={() =>
+              setColumnFilters([
+                { id: "status", value: "Not Converted" },
+              ] as any)
+            }
+            className="p-3 flex items-center text-gray-600 text-sm font-medium leading-150 rounded  gap-[10px]"
+          >
             Not Converted
             <IoInformationCircleSharp />
           </button>
-          <button className="p-3 flex items-center text-gray-600 text-sm font-medium leading-150 rounded  gap-[10px]">
+          <button
+            onClick={() =>
+              setColumnFilters([{ id: "status", value: "Converted" }] as any)
+            }
+            className="p-3 flex items-center text-gray-600 text-sm font-medium leading-150 rounded  gap-[10px]"
+          >
             Converted
             <IoInformationCircleSharp />
           </button>
         </div>
-        <Dropdown arrowIcon color="blue" className="" itemScope label="Filter">
-          <Dropdown.Item>
-            <div className="flex items-center">
-              <input
-                id="all"
-                type="checkbox"
-                defaultValue=""
-                name="filter"
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              <label
-                htmlFor="all"
-                className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                All
-              </label>
-            </div>
-          </Dropdown.Item>
-          <Dropdown.Item>
-            <div className="flex items-center">
-              <input
-                id="Appointment"
-                name="filter"
-                type="checkbox"
-                defaultValue=""
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              <label
-                htmlFor="Appointment"
-                className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                Appointment
-              </label>
-            </div>
-          </Dropdown.Item>
-          <Dropdown.Item>
-            <div className="flex items-center">
-              <input
-                id="Warranty-Exchange"
-                type="checkbox"
-                name="filter"
-                defaultValue=""
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              <label
-                htmlFor="Warranty-Exchange"
-                className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                Warranty & Exchange
-              </label>
-            </div>
-          </Dropdown.Item>
-          <Dropdown.Item>
-            <div className="flex items-center">
-              <input
-                id="RepairMaintenance"
-                type="checkbox"
-                name="filter"
-                defaultValue=""
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              <label
-                htmlFor="RepairMaintenance"
-                className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >
-                Repair & Maintenance
-              </label>
-            </div>
-          </Dropdown.Item>
-        </Dropdown>
+
+        <FilterDropDown
+          columnFilters={columnFilters}
+          setColumnFilters={setColumnFilters as (value: any[]) => void}
+        />
       </div>
       <div className="bg-white shadow w-full flex flex-col rounded-lg">
         <div className="w-full flex p-4 items-center justify-between">
-          <Datepicker color={"blue"} />
+          <DateRangePicker />
           <div className="relative w-[350px] mb-6">
             <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
               <IoIosSearch />
@@ -113,16 +148,22 @@ function TabsTable() {
             />
           </div>
         </div>
-        <ConsultanciesTable />
+        <ConsultanciesTable flexRender={flexRender} table={table} />
         <div className="w-full border-t p-4 justify-between flex items-center">
           <h4 className="text-sm font-normal text-gray-500">
-            Showing <span className="font-semibold text-gray-900">1-10</span> of{" "}
-            <span className="font-semibold text-gray-900">1000</span>
+            Showing{" "}
+            <span className="font-semibold text-gray-900">
+              {table.getState().pagination.pageIndex + 1}-{table.getRowCount()}
+            </span>{" "}
+            of{" "}
+            <span className="font-semibold text-gray-900">
+              {table.getRowCount()}
+            </span>
           </h4>
           <Pagination
             color="blue"
-            currentPage={currentPage}
-            totalPages={100}
+            currentPage={table.getState().pagination.pageIndex + 1}
+            totalPages={table.getPageCount()}
             onPageChange={onPageChange}
             showIcons
           />
