@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import PageActions from "../actions/PageActions";
+import PageActions from "../_actions/PageActions";
 
 const PageContext = React.createContext<AdminConsultancyDashboard.ContextProps>(
 	{} as AdminConsultancyDashboard.ContextProps

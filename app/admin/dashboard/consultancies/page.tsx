@@ -5,6 +5,9 @@ import { FaClipboardCheck } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { IoIosSearch } from "react-icons/io";
 import useStamina from "@/modules/StateManagement/Stamina/useStamina";
+import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
+import { useForm } from "react-hook-form";
+import createConsultancie from "./_fetch/services/createConsultancie";
 export default function consultancies() {
   const [show, actions] = useStamina({
     initialState: {
@@ -22,8 +25,26 @@ export default function consultancies() {
   });
 
   console.log(show);
+  const { register, handleSubmit } =
+    useForm<ConsultancyTypes.AddNewConsultancy>();
+
+  const [xState, loading, fetcher] = useHandleAsync(createConsultancie, {
+    onSuccess: (v) => {
+      console.log(v, "success");
+    },
+  });
+  const onSubmit = (data: ConsultancyTypes.AddNewConsultancy) => {
+    try {
+      fetcher(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
-    <section className="relative w-full overflow-auto">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="relative w-full overflow-auto"
+    >
       <div className="w-full p-8 pb-[39px] sticky top-0 z-20 bg-white  flex justify-between items-center">
         <div className="flex justify-between  items-center w-full">
           <Breadcrumb className="bg-gray-50 px-5 py-3  dark:bg-gray-800 ">
@@ -36,14 +57,14 @@ export default function consultancies() {
             <Button color="light" fullSized size={"md"} outline>
               Cancel
             </Button>
-            <Button color="blue" fullSized size={"md"}>
+            <Button type="submit" color="blue" fullSized size={"md"}>
               Save
             </Button>
           </div>
         </div>
       </div>
       <div className="p-8 w-full pt-0 z-20 flex flex-col">
-        <form className="w-full gap-[39px] flex flex-col">
+        <div className="w-full gap-[39px] flex flex-col">
           <div className="flex w-[668px] z-10 p-4 flex-col items-start gap-4 bg-white">
             <div
               id="heading"
@@ -64,6 +85,7 @@ export default function consultancies() {
               <input
                 type="text"
                 id="Name"
+                {...register("name")}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Add Name"
               />
@@ -76,6 +98,7 @@ export default function consultancies() {
                 Consultation Type
               </label>
               <select
+                {...register("consutationType")}
                 onChange={(e) =>
                   e.target.value !== "Appointment"
                     ? actions.setShow()
@@ -104,6 +127,7 @@ export default function consultancies() {
                     Select Hearing Aid Company
                   </label>
                   <select
+                    {...register("consultancySubType.Company")}
                     id="SelectHearingAidCompany"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
@@ -124,9 +148,10 @@ export default function consultancies() {
                     htmlFor="SelectHearingAidCompany"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    Select Hearing Aid Company
+                    Select Hearing Aid Category
                   </label>
                   <select
+                    {...register("consultancySubType.Cetegory")}
                     id="SelectHearingAidCompany"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
@@ -150,6 +175,7 @@ export default function consultancies() {
                     Select Issue
                   </label>
                   <select
+                    {...register("consultancySubType.Issue")}
                     id="SelectIssue"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
@@ -173,6 +199,7 @@ export default function consultancies() {
                     Select Status
                   </label>
                   <select
+                    {...register("consultancySubType.Status")}
                     id="Select Status"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
@@ -204,6 +231,7 @@ export default function consultancies() {
                         Your comment
                       </label>
                       <textarea
+                        {...register("consultancySubType.issueMSG")}
                         id="comment"
                         rows={4}
                         className="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
@@ -283,6 +311,7 @@ export default function consultancies() {
                 Contact Number
               </label>
               <input
+                {...register("ContactNumber")}
                 type="text"
                 id="ContactNumber"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -297,6 +326,7 @@ export default function consultancies() {
                 Email Address
               </label>
               <input
+                {...register("Email")}
                 type="text"
                 id="EmailAddress"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -329,16 +359,20 @@ export default function consultancies() {
               >
                 Slot date
               </label>
-              <Datepicker color={"blue"} />
+              <Datepicker {...register("slots.Date")} color={"blue"} />
             </div>
             <div className="w-full">
               <label
                 htmlFor="Slotdate"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
-                Slot date
+                Slot Time
               </label>
-              <Datepicker color={"blue"} />
+              <Datepicker
+                {...register("slots.Time")}
+                type="time"
+                color={"blue"}
+              />
             </div>
             <div className="w-full">
               <label
@@ -348,6 +382,7 @@ export default function consultancies() {
                 Status
               </label>
               <select
+                {...register("status")}
                 id="Status"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
@@ -373,6 +408,7 @@ export default function consultancies() {
                     Your comment
                   </label>
                   <textarea
+                    {...register("messages")}
                     id="comment"
                     rows={4}
                     className="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
@@ -476,8 +512,8 @@ export default function consultancies() {
               </label>
             </div>
           </div>
-        </form>
+        </div>
       </div>
-    </section>
+    </form>
   );
 }
