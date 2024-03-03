@@ -5,9 +5,9 @@ import React from "react";
 
 import { FaPlus } from "react-icons/fa6";
 import AllBlogsTable from "./_components/AllBlogsTable/AllBlogsTable";
-import { Drawer } from "@mui/material";
 import AddNewArticle from "./_components/AddNewArticle/AddNewArticle";
 import useStamina from "@/modules/StateManagement/Stamina/useStamina";
+
 
 function admin() {
   const [{ DrawerVisible }, actions] = useStamina({
@@ -23,6 +23,8 @@ function admin() {
       },
     },
   });
+
+  
   return (
     <>
       <AddNewArticle

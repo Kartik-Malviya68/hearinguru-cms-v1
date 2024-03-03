@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	images: {
-		domains: ["placehold.co", "storage.googleapis.com", "images.unsplash.com"],
+		domains: ["placehold.co", "storage.googleapis.com", "images.unsplash.com", "images.pexels.com", "unsplash.com", "plus.unsplash.com"],
 	},
 	reactStrictMode: false,
 	eslint: {

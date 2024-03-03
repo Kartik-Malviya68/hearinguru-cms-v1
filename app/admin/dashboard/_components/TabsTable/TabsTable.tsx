@@ -33,7 +33,7 @@ function TabsTable() {
     }),
     columnHelper.accessor("dateAndTime", {
       header: () => "DATE & TIME",
-      cell: (info) => info.getValue().toLocaleString("en-US"),
+      cell: (info) => info.getValue().toLocaleString("en-IN"),
     }),
     columnHelper.accessor("phoneNumber", {
       header: () => "Phone Number",
