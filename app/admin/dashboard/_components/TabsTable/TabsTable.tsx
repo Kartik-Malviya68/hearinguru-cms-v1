@@ -1,4 +1,4 @@
-import { Badge, Datepicker, Dropdown, Pagination } from "flowbite-react";
+import { Pagination, Tooltip } from "flowbite-react";
 import React, { useState } from "react";
 import { IoInformationCircleSharp } from "react-icons/io5";
 import { IoIosSearch } from "react-icons/io";
@@ -6,8 +6,6 @@ import { DateRangePicker, Stack } from "rsuite";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import {
   useReactTable,
-  createColumnHelper,
-  ColumnHelper,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -17,64 +15,25 @@ import {
 import ConsultanciesTable from "../ConsultanciesTable/ConsultanciesTable";
 import { consultanciesTable } from "../ConsultanciesTable/data";
 import FilterDropDown from "../FilterDropDown/FilterDropDown";
-
+import { columns } from "./columns";
 function TabsTable() {
-  const columnHelper =
-    createColumnHelper<ConsultanciesTableTypes.ConsultanciesTable>();
-  const [columnFilters, setColumnFilters] = useState([]);
-  const columns = [
-    columnHelper.accessor("id", {
-      header: () => "ID",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("name", {
-      header: () => "Name",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("dateAndTime", {
-      header: () => "DATE & TIME",
-      cell: (info) => info.getValue().toLocaleString("en-IN"),
-    }),
-    columnHelper.accessor("phoneNumber", {
-      header: () => "Phone Number",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("consultancyType", {
-      header: () => "Consultancy Type",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("slot", {
-      header: () => "Slot",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("status", {
-      header: () => "Status",
-      cell: (info) => (
-        <Badge
-          style={{ width: "fit-content" }}
-          color={
-            { Pending: "purple", "Not Converted": "gray", Converted: "green" }[
-              info.getValue()
-            ]
-          }
-        >
-          {info.getValue()}
-        </Badge>
-      ),
-    }),
-  ];
-
+  const [columnFilters, setColumnFilters] = useState([
+    { id: "status", value: "" },
+  ]);
+  const [rowSelection, setRowSelection] = React.useState({});
+  console.log(rowSelection);
   const table = useReactTable({
     data: consultanciesTable,
     columns,
     state: {
       columnFilters,
+      rowSelection,
     },
     getFilteredRowModel: getFilteredRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-
+    onRowSelectionChange: setRowSelection,
     initialState: {
       pagination: {
         pageIndex: 0,
@@ -93,39 +52,35 @@ function TabsTable() {
       };
     });
   };
+
+  const tabsNames = [
+    { id: "All", value: "" },
+    { id: "Pending", value: "Pending" },
+    { id: "Not Converted", value: "Not Converted" },
+    { id: "Converted", value: "Converted" },
+  ];
+
   return (
     <>
       <div className="flex justify-between gap-5 w-full">
         <div className="flex items-center">
-          <button
-            onClick={() =>
-              setColumnFilters([{ id: "status", value: "Pending" }] as any)
-            }
-            className="p-3 flex items-center text-blue-500 text-sm font-medium leading-150 rounded bg-[#e4efff] gap-[10px]"
-          >
-            Pending
-            <IoInformationCircleSharp />
-          </button>
-          <button
-            onClick={() =>
-              setColumnFilters([
-                { id: "status", value: "Not Converted" },
-              ] as any)
-            }
-            className="p-3 flex items-center text-gray-600 text-sm font-medium leading-150 rounded  gap-[10px]"
-          >
-            Not Converted
-            <IoInformationCircleSharp />
-          </button>
-          <button
-            onClick={() =>
-              setColumnFilters([{ id: "status", value: "Converted" }] as any)
-            }
-            className="p-3 flex items-center text-gray-600 text-sm font-medium leading-150 rounded  gap-[10px]"
-          >
-            Converted
-            <IoInformationCircleSharp />
-          </button>
+          {tabsNames.map((name) => (
+            <button
+              onClick={() =>
+                setColumnFilters([{ id: "status", value: name.value }] as any)
+              }
+              className={`p-3 flex items-center duration-100   ${
+                columnFilters[0].value === name.value
+                  ? "bg-[#e4efff] text-blue-500"
+                  : "bg-white text-gray-500 hover:text-gray-800"
+              } text-sm font-medium leading-150 rounded gap-[10px]`}
+            >
+              {name.id}
+              <Tooltip content={name.id}>
+                <IoInformationCircleSharp />
+              </Tooltip>
+            </button>
+          ))}
         </div>
 
         <FilterDropDown
@@ -142,6 +97,9 @@ function TabsTable() {
             </div>
             <input
               type="text"
+              onChange={(e) => {
+                table.setGlobalFilter(e.target.value);
+              }}
               id="input-group-1"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="Search ID, Type, Name, Number..."

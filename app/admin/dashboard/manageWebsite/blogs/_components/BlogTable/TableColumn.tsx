@@ -21,26 +21,29 @@ const columns = () => {
   const columnsLayout = [
     columnHelper.display({
       id: "select",
-      cell: ({ row }) => {
-        return (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onChange={(value) => {
-              row.toggleSelected(!!value);
-            }}
-            color={"blue"}
-          />
-        );
-      },
       header: ({ table }) => {
         return (
           <Checkbox
-            checked={table.getIsAllPageRowsSelected()}
-            onChange={(value) => table.toggleAllRowsSelected(!!value)}
+          checked={table.getIsAllPageRowsSelected()}
+          onChange={(value) => {
+            table.toggleAllPageRowsSelected(!!value);
+          }}
             color={"blue"}
           />
         );
       },
+      cell: ({ row }) => {
+        return (
+          <Checkbox
+          checked={row.getIsSelected()}
+          onChange={(value) => {
+            row.toggleSelected(!!value);
+          }}
+            color={"blue"}
+          />
+        );
+      },
+
       enableSorting: false,
       enableHiding: false,
     }),
@@ -64,17 +67,19 @@ const columns = () => {
       header: () => "Main Image",
       cell: (info) => {
         return (
-
           <>
             <div className="relative w-[110px] h-[42px]">
               <Image
-                onClick={()=> {
-                  setSelected(info.getValue().toString()),
-                  openModal()
-                  console.log(selected)
+                onClick={() => {
+                  setSelected(info.getValue().toString()), openModal();
+                  console.log(selected);
                 }}
                 alt="blogImg"
-                style={{ borderRadius: "5px", objectFit: "cover" , cursor: "pointer"}}
+                style={{
+                  borderRadius: "5px",
+                  objectFit: "cover",
+                  cursor: "pointer",
+                }}
                 layout="fill"
                 src={info.getValue() as string}
               ></Image>
@@ -106,14 +111,14 @@ const columns = () => {
                     >
                       <Dialog.Panel className=" max-w-[900px] transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                         <div className="w-[800px] h-[500px] relative">
-                        <Image
-                          onClick={openModal}
-                          alt="blogImg"
-                          style={{ borderRadius: "5px", objectFit: "cover" }}
-                          layout="fill"
-                          src={selected}
-                          quality={100}
-                        ></Image>
+                          <Image
+                            onClick={openModal}
+                            alt="blogImg"
+                            style={{ borderRadius: "5px", objectFit: "cover" }}
+                            layout="fill"
+                            src={selected}
+                            quality={100}
+                          ></Image>
                         </div>
                       </Dialog.Panel>
                     </Transition.Child>

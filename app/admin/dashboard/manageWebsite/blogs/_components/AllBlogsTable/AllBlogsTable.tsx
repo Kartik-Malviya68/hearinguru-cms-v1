@@ -25,9 +25,9 @@ function AllBlogsTable() {
       };
     });
   };
-
+  const [rowSelection, setRowSelection] = React.useState({});
   const [xstate, loading, fetcher] = useHandleAsync(fetchBlogData);
-
+  console.log(rowSelection)
   React.useEffect(() => {
     fetcher();
   }, []);
@@ -39,10 +39,12 @@ function AllBlogsTable() {
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onRowSelectionChange: setRowSelection,
     data: xstate || [], //dummyData,
     columns: columns(),
     state: {
       columnFilters,
+      rowSelection,
     },
     initialState: {
       pagination: {
