@@ -7,6 +7,9 @@ import { IoClose } from "react-icons/io5";
 import useStamina from "@/modules/StateManagement/Stamina/useStamina";
 import Image from "next/image";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import { useForm } from "react-hook-form";
+import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
+import addNewArticleBlog from "../../_fetch/services/addNewArticleBlog";
 interface Props {
   closeDrawer: () => void;
   openDrawer: boolean;
@@ -37,9 +40,22 @@ function AddNewArticle(props: Props) {
   };
 
   console.log(image);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<BlogTypes.addNewArticleBlog>({});
+
+  const [xstate, loading, fetch] = useHandleAsync(addNewArticleBlog);
+
+  const onSubmit = (data: BlogTypes.addNewArticleBlog) => {
+    fetch(data);
+    console.log(data);
+  };
   return (
     <Drawer anchor="right" open={openDrawer} onClose={closeDrawer}>
-      <div className="w-[706px]  flex pt-0 p-4 flex-col items-start gap-8 ">
+      <form className="w-[706px]  flex pt-0 p-4 flex-col items-start gap-8 ">
         <div
           id="heading"
           className="flex gap-2 sticky top-0  bg-white py-4 z-20 items-center w-full justify-between"
@@ -52,12 +68,17 @@ function AddNewArticle(props: Props) {
           </h4>
 
           <Button color="light" fullSized size={"sm"} outline>
-            Cancel
+            Preview
           </Button>
           <Button color="failure" fullSized size={"sm"}>
-            Cancel
+            Delete
           </Button>
-          <Button color="blue" fullSized size={"sm"}>
+          <Button
+            onClick={handleSubmit(onSubmit)}
+            color="blue"
+            fullSized
+            size={"sm"}
+          >
             Confirm Changes
           </Button>
         </div>
@@ -69,11 +90,17 @@ function AddNewArticle(props: Props) {
             Title
           </label>
           <input
+            {...register("title", {
+              required: "Please enter title",
+            })}
             type="text"
             id="Title"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Enter title"
           />
+          {errors.title && (
+            <p className="text-red-500 mt-1 text-xs">{errors.title.message}</p>
+          )}
         </div>
 
         <div className="w-full">
@@ -84,11 +111,17 @@ function AddNewArticle(props: Props) {
             Subtitle
           </label>
           <input
+            {...register("subtitle", { required: "Please enter subtitle" })}
             type="text"
             id="Subtitle"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Enter subtitle"
           />
+          {errors.subtitle && (
+            <p className="text-red-500 mt-1 text-xs">
+              {errors.subtitle.message}
+            </p>
+          )}
         </div>
         <div className="w-full flex flex-col gap-2">
           <label
@@ -98,6 +131,7 @@ function AddNewArticle(props: Props) {
             Slug
           </label>
           <input
+            {...register("slug", { required: "Please enter slug" })}
             type="Slug"
             id="EmailAddress"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -107,6 +141,9 @@ function AddNewArticle(props: Props) {
             <PiGlobeHemisphereWestFill />
             hearinguru.url/blog/The-importance-of-ear-care
           </span>
+          {errors.slug && (
+            <p className="text-red-500 mt-1 text-xs">{errors.slug.message}</p>
+          )}
         </div>
 
         <div className="w-full">
@@ -116,7 +153,14 @@ function AddNewArticle(props: Props) {
           >
             Date
           </label>
-          <Datepicker color={"blue"} placeholder="Select date" />
+          <Datepicker
+            {...register("date", { required: "Please enter date" })}
+            color={"blue"}
+            placeholder="Select date"
+          />
+          {errors.date && (
+            <p className="text-red-500 mt-1 text-xs">{errors.date.message}</p>
+          )}
         </div>
         <div className="w-full">
           <label
@@ -126,14 +170,18 @@ function AddNewArticle(props: Props) {
             Category
           </label>
           <select
+            {...register("category", { required: "Please enter category" })}
             id="Category"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
-            <option selected value="US">
-              Pending
-            </option>
-            <option value="US">Success</option>
+            <option value="pending">Pending</option>
+            <option value="Success">Success</option>
           </select>
+          {errors.category && (
+            <p className="text-red-500 mt-1 text-xs">
+              {errors.category.message}
+            </p>
+          )}
         </div>
         <div className="w-full">
           <label
@@ -149,7 +197,7 @@ function AddNewArticle(props: Props) {
                   alt="cover-img"
                   width={256}
                   height={126}
-                  style={{borderRadius: '3px'}}
+                  style={{ borderRadius: "3px" }}
                   src={image.image ? image.image.toString() : ""}
                 ></Image>
               ) : (
@@ -177,6 +225,7 @@ function AddNewArticle(props: Props) {
             Preference
           </label>
           <select
+            {...register("preference", { required: "Please enter preference" })}
             id="Preference"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
@@ -185,6 +234,11 @@ function AddNewArticle(props: Props) {
             </option>
             <option value="US">Success</option>
           </select>
+          {errors.preference && (
+            <p className="text-red-500 mt-1 text-xs">
+              {errors.preference.message}
+            </p>
+          )}
         </div>
 
         <div className="w-full">
@@ -203,12 +257,18 @@ function AddNewArticle(props: Props) {
                 Your comment
               </label>
               <textarea
+                {...register("message", { required: "Please enter message" })}
                 id="comment"
                 rows={4}
                 className="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
                 placeholder="Write text here ..."
                 defaultValue={""}
               />
+              {errors.message && (
+                <p className="text-red-500 mt-1 text-xs">
+                  {errors.message.message}
+                </p>
+              )}
             </div>
             <div className="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
               <div className="flex ps-0 space-x-1 rtl:space-x-reverse sm:ps-2">
@@ -274,11 +334,19 @@ function AddNewArticle(props: Props) {
             Author Name
           </label>
           <input
+            {...register("authorName", {
+              required: "Please enter author name",
+            })}
             type="text"
             id="Author Name"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Enter Author Name"
           />
+          {errors.authorName && (
+            <p className="text-red-500 mt-1 text-xs">
+              {errors.authorName.message}
+            </p>
+          )}
         </div>
 
         <div className="w-full">
@@ -298,17 +366,26 @@ function AddNewArticle(props: Props) {
               </label>
               <textarea
                 id="comment"
+                {...register("aboutAuthor", {
+                  required: "Please enter about author",
+                })}
                 rows={4}
                 className="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
                 placeholder="Write text here ..."
                 defaultValue={""}
               />
+              {errors.aboutAuthor && (
+                <p className="text-red-500 mt-1 text-xs">
+                  {errors.aboutAuthor.message}
+                </p>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      </form>
     </Drawer>
   );
 }
 
 export default AddNewArticle;
+  

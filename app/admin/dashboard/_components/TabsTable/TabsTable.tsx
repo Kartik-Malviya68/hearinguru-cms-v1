@@ -21,7 +21,6 @@ function TabsTable() {
     { id: "status", value: "" },
   ]);
   const [rowSelection, setRowSelection] = React.useState({});
-  console.log(rowSelection);
   const table = useReactTable({
     data: consultanciesTable,
     columns,

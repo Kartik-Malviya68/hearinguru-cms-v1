@@ -37,28 +37,31 @@ const columns = ({ setChecked }: { setChecked: (e: any) => void }) => {
   function openModal() {
     setIsOpen(true);
   }
+
   const columnsLayout = [
     columnHelper.display({
       id: "select",
       header: ({ table }) => {
+        setChecked(!table.getIsAllPageRowsSelected());
         return (
           <Checkbox
             checked={table.getIsAllPageRowsSelected()}
             onChange={(value) => {
               table.toggleAllPageRowsSelected(value.target.checked);
-              setChecked(value.target.checked);
             }}
             color={"blue"}
           />
         );
       },
       cell: ({ row }) => {
+        setChecked(row.getIsSelected());
+        console.log(row.getIsSelected());
+
         return (
           <Checkbox
             checked={row.getIsSelected()}
             onChange={(value) => {
               row.toggleSelected(value.target.checked);
-              setChecked(value.target.checked);
             }}
             color={"blue"}
           />
@@ -68,6 +71,7 @@ const columns = ({ setChecked }: { setChecked: (e: any) => void }) => {
       enableSorting: false,
       enableHiding: false,
     }),
+
     columnHelper.accessor("title", {
       header: () => "Title",
       cell: (info) => info.getValue(),
@@ -122,7 +126,6 @@ const columns = ({ setChecked }: { setChecked: (e: any) => void }) => {
                     <Popover.Panel className="absolute  z-10 mt-3  w-[150px] -translate-x-1/2 transform px-4 sm:px-0">
                       <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
                         <div className="relative flex flex-col gap-7 p-4 bg-white">
-                          
                           <Link
                             href=""
                             className="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50"

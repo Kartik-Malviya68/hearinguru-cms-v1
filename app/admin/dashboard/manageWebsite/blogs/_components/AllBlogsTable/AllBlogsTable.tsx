@@ -37,7 +37,6 @@ function AllBlogsTable({ setInteraction }: Props) {
   };
   const [rowSelection, setRowSelection] = React.useState({});
   const [xstate, loading, fetcher] = useHandleAsync(fetchBlogData);
-  console.log(rowSelection);
   React.useEffect(() => {
     fetcher();
   }, []);
@@ -72,7 +71,6 @@ function AllBlogsTable({ setInteraction }: Props) {
     { id: 5, name: "Prevention", value: "Prevention" },
   ];
 
-  const v = ""; // Declare the variable 'v' with an initial value
   setInteraction &&
     setInteraction({
       filterRecordsFromQuery: function (query: string): void {

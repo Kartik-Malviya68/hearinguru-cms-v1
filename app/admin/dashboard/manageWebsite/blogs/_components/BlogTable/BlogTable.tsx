@@ -1,9 +1,6 @@
-import useStamina from "@/modules/StateManagement/Stamina/useStamina";
+import { Table } from "flowbite-react";
 
-import { Checkbox, Table } from "flowbite-react";
-import Image from "next/image";
 import React from "react";
-import { dummyData } from "./DummyData";
 
 interface BlogTableProps {
   table: any;

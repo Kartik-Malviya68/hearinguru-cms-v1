@@ -6,7 +6,19 @@ export default class ServerActions extends ServerStateUtils<BlogTypes.State> {
     const res = await this.handleAsync("fetchBlogData", () => fetchBlogData());
     if (res) {
       this.mutateState((v) => {
-        v.data = res;
+        v.blogData = res;
+      });
+    }
+  }
+  async addNewArticleData() {
+    const res = await this.handleAsync(
+      "addNewArticleData",
+      () => this.state.addNewArticleData as any
+    );
+
+    if (res) {
+      this.mutateState((v) => {
+        v.addNewArticleData = res;
       });
     }
   }

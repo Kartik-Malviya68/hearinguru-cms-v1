@@ -259,14 +259,24 @@ function page() {
               </div>
               <div className="p-4 flex items-center border-b w-full border-gray-200 text-gray-500 text-sm uppercase font-normal leading-150 bg-white">
                 Online (14 April, 05:20 PM)
-                <a className="text-blue-500 leading-150 font-normal normal-case	ml-2 underline text-sm" href="">View{'>'}</a>
+                <a
+                  className="text-blue-500 leading-150 font-normal normal-case	ml-2 underline text-sm"
+                  href=""
+                >
+                  View{">"}
+                </a>
               </div>
               <div className="p-4 flex items-center border-b w-full rounded-bl-lg border-gray-200 text-gray-900 text-sm uppercase font-normal leading-150 bg-gray-50">
                 Appointment
               </div>
               <div className="p-4 flex items-center border-b w-full rounded-br-lg border-gray-200 text-gray-500 text-sm uppercase font-normal leading-150 bg-white">
                 Snehakumar Singh (14 April, 05:20 PM)
-                <a className="text-blue-500 leading-150 font-normal normal-case	ml-2 underline text-sm" href="">View{'>'}</a>
+                <a
+                  className="text-blue-500 leading-150 font-normal normal-case	ml-2 underline text-sm"
+                  href=""
+                >
+                  View{">"}
+                </a>
               </div>
             </div>
           </div>
