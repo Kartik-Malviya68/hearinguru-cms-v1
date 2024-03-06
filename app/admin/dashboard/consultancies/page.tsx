@@ -8,7 +8,7 @@ import useStamina from "@/modules/StateManagement/Stamina/useStamina";
 import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
 import { useForm } from "react-hook-form";
 import createConsultancie from "./_fetch/services/createConsultancie";
-export default function consultancies() {
+export default function page() {
   const [show, actions] = useStamina({
     initialState: {
       show: false,
