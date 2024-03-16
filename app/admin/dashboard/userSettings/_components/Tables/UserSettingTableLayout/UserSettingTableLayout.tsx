@@ -6,6 +6,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+
 import { Pagination, Table, Badge, Checkbox } from "flowbite-react";
 import React, { useState } from "react";
 import AdminTableColumn from "../Columns/AdminAndCallingTeamTableColumn";
@@ -13,6 +14,8 @@ import { dummyData } from "@/app/admin/dashboard/manageWebsite/blogs/_components
 import { adminTableDummyData } from "../dummydata";
 import Filters from "../../Filters/Filters";
 import { Dialog, Popover, Transition } from "@headlessui/react";
+import EmptyState from "@/public/icons/Modals/EmptyState";
+import NoDataRecords from "@/components/Tables/NoDataRecords/NoDataRecords";
 // import { adminTableDummyData } from "../dummydata";
 
 interface Props {
@@ -59,6 +62,7 @@ export default function UserSettingTableLayout(props: Props) {
     });
   };
   console.log(columnFilters);
+  console.log(table.getPageCount());
   return (
     <div className="w-full">
       <Filters table={table} buttonName="Filter">
@@ -128,43 +132,48 @@ export default function UserSettingTableLayout(props: Props) {
         </Popover.Panel>
       </Filters>
       <div className="overflow-hidden w-full">
-        <Table>
-          <Table.Head>
-            {table
-              .getHeaderGroups()
-              .map((headerGroup: { headers: any[] }) =>
-                headerGroup.headers.map((header) => (
-                  <Table.HeadCell key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                  </Table.HeadCell>
-                ))
-              )}
-          </Table.Head>
-          <Table.Body className="divide-y">
-            {table
-              .getRowModel()
-              .rows.map(
-                (row: {
-                  id: React.Key | null | undefined;
-                  getVisibleCells: () => any[];
-                }) => (
-                  <Table.Row key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <Table.Cell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </Table.Cell>
-                    ))}
-                  </Table.Row>
-                )
-              )}
-          </Table.Body>
-        </Table>
+        {table.getPageCount() < 1 ? (
+          <NoDataRecords />
+        ) : (
+          <Table>
+            <Table.Head>
+              {table
+                .getHeaderGroups()
+                .map((headerGroup: { headers: any[] }) =>
+                  headerGroup.headers.map((header) => (
+                    <Table.HeadCell key={header.id}>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                    </Table.HeadCell>
+                  ))
+                )}
+            </Table.Head>
+
+            <Table.Body className="divide-y">
+              {table
+                .getRowModel()
+                .rows.map(
+                  (row: {
+                    id: React.Key | null | undefined;
+                    getVisibleCells: () => any[];
+                  }) => (
+                    <Table.Row key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <Table.Cell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Table.Cell>
+                      ))}
+                    </Table.Row>
+                  )
+                )}
+            </Table.Body>
+          </Table>
+        )}
       </div>
       <div className="w-full border-t p-4 justify-between flex items-center">
         <h4 className="text-sm font-normal text-gray-500">

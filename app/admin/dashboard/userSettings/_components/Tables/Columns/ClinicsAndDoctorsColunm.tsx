@@ -7,6 +7,7 @@ import { Badge } from "flowbite-react";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Props {
   column: string;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export const ClinicsAndDoctorsColumn = () => {
+  const router = useRouter();
   const ClinicsAndDoctorsLayout = [
     columnHelper.accessor("staffId", {
       header: "Staff  ID",
@@ -91,12 +93,14 @@ export const ClinicsAndDoctorsColumn = () => {
                   >
                     Documents
                   </Link>
-                  <Link
-                    href=""
+                  <button
+                    onClick={() =>
+                      router.push("/admin/dashboard/userSettings/[aboutUser]")
+                    }
                     className="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50"
                   >
                     View Details
-                  </Link>
+                  </button>
                 </div>
               </div>
             </Popover.Panel>

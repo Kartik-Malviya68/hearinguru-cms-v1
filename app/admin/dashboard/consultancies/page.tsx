@@ -6,8 +6,9 @@ import { IoClose } from "react-icons/io5";
 import { IoIosSearch } from "react-icons/io";
 import useStamina from "@/modules/StateManagement/Stamina/useStamina";
 import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
-import { useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import createConsultancie from "./_fetch/services/createConsultancie";
+import { useRouter } from "next/navigation";
 export default function page() {
   const [show, actions] = useStamina({
     initialState: {
@@ -23,23 +24,49 @@ export default function page() {
       },
     },
   });
-
+  const router = useRouter();
   console.log(show);
-  const { register, handleSubmit } =
-    useForm<ConsultancyTypes.AddNewConsultancy>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    control,
+    getValues,
+  } = useForm<ConsultancyTypes.AddNewConsultancy>();
 
   const [xState, loading, fetcher] = useHandleAsync(createConsultancie, {
     onSuccess: (v) => {
       console.log(v, "success");
     },
   });
-  const onSubmit = (data: ConsultancyTypes.AddNewConsultancy) => {
-    try {
-      fetcher(data);
-    } catch (error) {
-      console.log(error);
-    }
+
+  const onSubmit: SubmitHandler<ConsultancyTypes.AddNewConsultancy> = (
+    data
+  ) => {
+    fetcher(data);
+    console.log(xState, "xstate");
+    getValues().consutationType === "Repair and Maintenance" &&
+      router.push(
+        "/admin/dashboard/consultancies/repairConsultancySpecification"
+      );
+    getValues().consutationType === "Appointment" &&
+      router.push("/admin/dashboard/consultancies/appointmentSpecification");
+    getValues().consutationType === "Repair and Maintenance" &&
+      router.push(
+        "/admin/dashboard/consultancies/warrantyConsultancySpecification"
+      );
   };
+  // const onSubmit = (data: ConsultancyTypes.AddNewConsultancy) => {
+  //   try {
+  //     fetcher(data);
+  //     getValues().consutationType === "Repair and Maintenance" && router.push("/admin/dashboard/consultancies/repairConsultancySpecification")
+  //     getValues().consutationType === "Appointment" && router.push("/admin/dashboard/consultancies/appointmentSpecification")
+  //     getValues().consutationType === "Repair and Maintenance" && router.push("/admin/dashboard/consultancies/warrantyConsultancySpecification")
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -85,10 +112,15 @@ export default function page() {
               <input
                 type="text"
                 id="Name"
-                {...register("name")}
+                {...register("name", { required: "Please enter your name" })}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Add Name"
               />
+              {errors.name && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <label
@@ -98,7 +130,9 @@ export default function page() {
                 Consultation Type
               </label>
               <select
-                {...register("consutationType")}
+                {...register("consutationType", {
+                  required: "Please select a type",
+                })}
                 onChange={(e) =>
                   e.target.value !== "Appointment"
                     ? actions.setShow()
@@ -107,7 +141,7 @@ export default function page() {
                 id="ConsultationType"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
-                <option disabled selected value="US">
+                <option disabled selected value="">
                   Select Type
                 </option>
                 <option value="Repair and Maintenance">
@@ -116,6 +150,11 @@ export default function page() {
                 <option value="Appointment">Appointment</option>
                 <option value="Warranty & Exchange">Warranty & Exchange</option>
               </select>
+              {errors.consutationType && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.consutationType.message}
+                </p>
+              )}
             </div>
             {show.show && (
               <div className="flex p-3 flex-col items-start gap-3 w-full border border-gray-300 rounded-2xl">
@@ -127,21 +166,28 @@ export default function page() {
                     Select Hearing Aid Company
                   </label>
                   <select
-                    {...register("consultancySubType.Company")}
+                    {...register("consultancySubType.Company", {
+                      required: "Please select a company",
+                    })}
                     id="SelectHearingAidCompany"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option disabled selected value="US">
-                      Select Type
+                    <option disabled selected value="">
+                      Select Hearing Aid Company
                     </option>
-                    <option value="Repair and Maintenance">
-                      Repair and Maintenance
-                    </option>
-                    <option value="Appointment">Appointment</option>
-                    <option value="Warranty & Exchange">
-                      Warranty & Exchange
-                    </option>
+                    <option value="Oticon">Oticon</option>
+                    <option value="Starkley">Starkley</option>
+                    <option value="Phonak">Phonak</option>
+                    <option value="Resound">Resound</option>
+                    <option value="Siemens">Siemens</option>
+                    <option value="Widex">Widex</option>
+                    <option value="Others">Others</option>
                   </select>
+                  {errors.consultancySubType?.Company && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.consultancySubType.Company.message}
+                    </p>
+                  )}
                 </div>
                 <div className="w-full">
                   <label
@@ -151,21 +197,39 @@ export default function page() {
                     Select Hearing Aid Category
                   </label>
                   <select
-                    {...register("consultancySubType.Cetegory")}
+                    {...register("consultancySubType.Cetegory", {
+                      required: "Please select a category",
+                    })}
                     id="SelectHearingAidCompany"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option disabled selected value="US">
-                      Select Type
+                    <option disabled selected value="">
+                      Select Hearing Aid Category
                     </option>
-                    <option value="Repair and Maintenance">
-                      Repair and Maintenance
+                    <option value="Behind The Ear (BTE)">
+                      Behind The Ear (BTE)
                     </option>
-                    <option value="Appointment">Appointment</option>
-                    <option value="Warranty & Exchange">
-                      Warranty & Exchange
+                    <option value="In The Ear (ITE)">In The Ear (ITE)</option>
+                    <option value="Completely In The Canal (CIC)">
+                      Completely In The Canal (CIC)
+                    </option>
+                    <option value="Receiver In The Ear (RITE)">
+                      Receiver In The Ear (RITE)
+                    </option>
+                    <option value="Invisible In Canal (IIC)">
+                      Invisible In Canal (IIC)
+                    </option>
+                    <option value="Pocket">Pocket</option>
+                    <option value="Invisible">Invisible</option>
+                    <option value="Don’t Know For Now">
+                      Don’t Know For Now
                     </option>
                   </select>
+                  {errors.consultancySubType?.Cetegory && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.consultancySubType.Cetegory.message}
+                    </p>
+                  )}
                 </div>
                 <div className="w-full">
                   <label
@@ -175,36 +239,57 @@ export default function page() {
                     Select Issue
                   </label>
                   <select
-                    {...register("consultancySubType.Issue")}
+                    {...register("consultancySubType.Issue", {
+                      required: "Please select an issue",
+                    })}
                     id="SelectIssue"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option disabled selected value="US">
-                      Select Type
+                    <option disabled selected value="">
+                      Select Hearing Aid Issue
                     </option>
-                    <option value="Repair and Maintenance">
-                      Repair and Maintenance
+                    <option value="Fixing Battery Doors">
+                      Fixing Battery Doors
                     </option>
-                    <option value="Appointment">Appointment</option>
-                    <option value="Warranty & Exchange">
-                      Warranty & Exchange
+                    <option value="Ear Buds Replacement">
+                      Ear Buds Replacement
                     </option>
+                    <option value="Extensive Deep Cleaning">
+                      Extensive Deep Cleaning
+                    </option>
+                    <option value="Re-Circuitry">Re-Circuitry</option>
+                    <option value="Fixing Holes">Fixing Holes</option>
+                    <option value="Addition of Extraction Cords">
+                      Addition of Extraction Cords
+                    </option>
+                    <option value="Reprograming">Reprograming</option>
+                    <option value="ON/OFF Switch Not Working">
+                      ON/OFF Switch Not Working
+                    </option>
+                    <option value="I Don’t Know">I Don’t Know</option>
                   </select>
+                  {errors.consultancySubType?.Issue && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.consultancySubType.Issue.message}
+                    </p>
+                  )}
                 </div>
                 <div className="w-full">
                   <label
                     htmlFor="SelectStatus"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    Select Status
+                    Select
                   </label>
                   <select
-                    {...register("consultancySubType.Status")}
+                    {...register("consultancySubType.Status", {
+                      required: "Please select a status",
+                    })}
                     id="Select Status"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option disabled selected value="US">
-                      Select Type
+                    <option disabled value="US">
+                      Select Status Type
                     </option>
                     <option value="Repair and Maintenance">
                       Repair and Maintenance
@@ -214,6 +299,11 @@ export default function page() {
                       Warranty & Exchange
                     </option>
                   </select>
+                  {errors.consultancySubType?.Status && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.consultancySubType.Status.message}
+                    </p>
+                  )}
                 </div>
                 <div className="w-full">
                   <div className=" mb-2 flex w-full justify-between items-center">
@@ -231,13 +321,20 @@ export default function page() {
                         Your comment
                       </label>
                       <textarea
-                        {...register("consultancySubType.issueMSG")}
+                        {...register("consultancySubType.issueMSG", {
+                          required: "Please enter a message",
+                        })}
                         id="comment"
                         rows={4}
                         className="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
                         placeholder="Write text here ..."
                         defaultValue={""}
                       />
+                      {errors.consultancySubType?.issueMSG && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.consultancySubType.issueMSG.message}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
                       <button
@@ -311,12 +408,19 @@ export default function page() {
                 Contact Number
               </label>
               <input
-                {...register("ContactNumber")}
+                {...register("ContactNumber", {
+                  required: "Please enter a contact number",
+                })}
                 type="text"
                 id="ContactNumber"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="+91 Mobile Number"
               />
+              {errors.ContactNumber && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.ContactNumber.message}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <label
@@ -326,12 +430,17 @@ export default function page() {
                 Email Address
               </label>
               <input
-                {...register("Email")}
+                {...register("Email", { required: "Please enter an email" })}
                 type="text"
                 id="EmailAddress"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Email here"
               />
+              {errors.Email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.Email.message}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <label
@@ -359,7 +468,23 @@ export default function page() {
               >
                 Slot date
               </label>
-              <Datepicker {...register("slots.Date")} color={"blue"} />
+
+              <Controller
+                control={control}
+                name="slots.Date"
+                render={({ field: { onChange, onBlur, value, ref } }) => (
+                  <Datepicker
+                    onChange={onChange}
+                    defaultDate={value}
+                    color="blue"
+                  />
+                )}
+              ></Controller>
+              {errors.slots?.Date && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.slots.Date.message}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <label
@@ -368,11 +493,24 @@ export default function page() {
               >
                 Slot Time
               </label>
-              <Datepicker
-                {...register("slots.Time")}
-                type="time"
-                color={"blue"}
-              />
+              <select
+                {...register("slots.Time", {
+                  required: "Please select a status",
+                })}
+                id="Select Status"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              >
+                <option disabled selected value={""}>
+                  Select Time
+                </option>
+                <option value="12:00 PM">12:00 PM</option>
+                <option value="03:00 PM">03:00 PM</option>
+              </select>
+              {errors.slots?.Time && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.slots.Time.message}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <label
@@ -382,15 +520,18 @@ export default function page() {
                 Status
               </label>
               <select
-                {...register("status")}
+                {...register("status", { required: "Please select a status" })}
                 id="Status"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
-                <option selected value="US">
-                  Pending
-                </option>
+                <option value="US">Pending</option>
                 <option value="US">Success</option>
               </select>
+              {errors.status && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.status.message}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <div className=" mb-2 flex w-full justify-between items-center">
@@ -408,13 +549,20 @@ export default function page() {
                     Your comment
                   </label>
                   <textarea
-                    {...register("messages")}
+                    {...register("messages", {
+                      required: "Please enter a message",
+                    })}
                     id="comment"
                     rows={4}
                     className="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
                     placeholder="Write text here ..."
                     defaultValue={""}
                   />
+                  {errors.messages && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.messages.message}
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
                   <button

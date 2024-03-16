@@ -3,6 +3,7 @@
 import useStamina from "@/modules/StateManagement/Stamina/useStamina";
 import { editOutline } from "@/public/icons/icons";
 import { Drawer } from "@mui/material";
+import { Dialog, Popover, Transition } from "@headlessui/react";
 import {
   Badge,
   Breadcrumb,
@@ -652,13 +653,30 @@ function page() {
                 </div>
                 <div className="p-4 flex justify-between items-center border-b w-full border-gray-200 text-green-700 text-sm uppercase font-normal leading-150 bg-white">
                   Yes
-                  <Badge
-                    color="success"
-                    className="rounded-md normal-case"
-                    icon={editOutline}
-                  >
-                    Change
-                  </Badge>
+                  <Popover className="relative">
+                    <Popover.Button className="focus-visible:outline-none z-10">
+                      <Badge
+                        color="success"
+                        className="rounded-md normal-case"
+                        icon={editOutline}
+                      >
+                        Change
+                      </Badge>
+                    </Popover.Button>
+
+                    <Popover.Panel className="absolute z-20 mt-3  w-[150px] -translate-x-1/2 transform px-4 sm:px-0">
+                      <div className="overflow-hidden z-[200] rounded-lg shadow-lg ring-1 ring-black/5">
+                        <div className="relative flex flex-col gap-7 p-4 bg-white">
+                          <button className="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50">
+                            Yes
+                          </button>
+                          <button className="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50">
+                            No
+                          </button>
+                        </div>
+                      </div>
+                    </Popover.Panel>
+                  </Popover>
                 </div>
 
                 <div className="p-4 flex items-center rounded-bl-lg border-b w-full border-gray-200 text-gray-900 text-sm uppercase font-normal leading-150 bg-gray-50">
@@ -672,13 +690,31 @@ function page() {
                   >
                     Collected
                   </Badge>
-                  <Badge
-                    color="success"
-                    className="rounded-md normal-case"
-                    icon={editOutline}
-                  >
-                    Change Status
-                  </Badge>
+
+                  <Popover className="relative">
+                    <Popover.Button className="focus-visible:outline-none z-10">
+                      <Badge
+                        color="success"
+                        className="rounded-md normal-case"
+                        icon={editOutline}
+                      >
+                        Change Status
+                      </Badge>
+                    </Popover.Button>
+
+                    <Popover.Panel className="absolute z-20 mt-3  w-[150px] -translate-x-1/2 transform px-4 sm:px-0">
+                      <div className="overflow-hidden z-[200] rounded-lg shadow-lg ring-1 ring-black/5">
+                        <div className="relative flex flex-col gap-7 p-4 bg-white">
+                          <button className="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50">
+                            Collected
+                          </button>
+                          <button className="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50">
+                            Not Collected
+                          </button>
+                        </div>
+                      </div>
+                    </Popover.Panel>
+                  </Popover>
                 </div>
               </div>
             </div>

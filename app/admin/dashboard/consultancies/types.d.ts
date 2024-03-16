@@ -5,10 +5,10 @@ namespace ConsultancyTypes {
       | "Repair and Maintenance"
       | "Appointment"
       | "Warranty & Exchange";
-    consultancySubType: {
-      Company: string;
-      Cetegory: string;
-      Issue: string;
+    consultancySubType?: {
+      Company: 'Oticon' | 'Starkley' | 'Phonak' | 'Resound' | 'Siemens' | 'Widex' | 'Others';
+      Cetegory: 'Behind The Ear (BTE)' | 'In The Ear (ITE)' | 'Completely In The Canal (CIC)' | 'Receiver In The Ear (RITE)' |  'Invisible In Canal (IIC)' | 'Pocket' | 'Invisible' | 'Don’t Know For Now';
+      Issue: 'Fixing Battery Doors' | 'Ear Buds Replacement' | 'Extensive Deep Cleaning' | 'Re-Circuitry' | 'Fixing Holes' | 'Addition of Extraction Cords' | 'Reprograming' | 'ON/OFF Switch Not Working' | 'I Don’t Know';
       Status: string;
       issueMSG: string;
     };
@@ -16,7 +16,7 @@ namespace ConsultancyTypes {
     Email: string;
     slots: {
       Date: Date;
-      Time: Date;
+      Time: string;
     };
     status: "Pending" | "Converted" | "Not Converted";
     messages: string;

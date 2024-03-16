@@ -1,3 +1,4 @@
+import NoDataRecords from "@/components/Tables/NoDataRecords/NoDataRecords";
 import { Table } from "flowbite-react";
 import React from "react";
 interface props {
@@ -9,43 +10,47 @@ function ConsultanciesTable(Props: props) {
 
   return (
     <div className="overflow-x-auto w-full">
-      <Table>
-        <Table.Head>
-          {table
-            .getHeaderGroups()
-            .map((headerGroup: { headers: any[] }) =>
-              headerGroup.headers.map((header) => (
-                <Table.HeadCell key={header.id}>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </Table.HeadCell>
-              ))
-            )}
-        </Table.Head>
-        <Table.Body className="divide-y">
-          {table
-            .getRowModel()
-            .rows.map(
-              (row: {
-                id: React.Key | null | undefined;
-                getVisibleCells: () => any[];
-              }) => (
-                <Table.Row key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <Table.Cell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </Table.Cell>
-                  ))}
-                </Table.Row>
-              )
-            )}
-        </Table.Body>
-      </Table>
+      {table.getPageCount() === 0 ? (
+        <NoDataRecords />
+      ) : (
+        <Table>
+          <Table.Head>
+            {table
+              .getHeaderGroups()
+              .map((headerGroup: { headers: any[] }) =>
+                headerGroup.headers.map((header) => (
+                  <Table.HeadCell key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </Table.HeadCell>
+                ))
+              )}
+          </Table.Head>
+          <Table.Body className="divide-y">
+            {table
+              .getRowModel()
+              .rows.map(
+                (row: {
+                  id: React.Key | null | undefined;
+                  getVisibleCells: () => any[];
+                }) => (
+                  <Table.Row key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <Table.Cell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </Table.Cell>
+                    ))}
+                  </Table.Row>
+                )
+              )}
+          </Table.Body>
+        </Table>
+      )}
     </div>
   );
 }

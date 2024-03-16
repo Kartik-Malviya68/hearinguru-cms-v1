@@ -21,6 +21,7 @@ export const columns = [
     cell: (info) => info.getValue(),
   }),
   columnHelper.accessor("consultancyType", {
+    id: "consultancyType",
     header: () => "Consultancy Type",
     cell: (info) => info.getValue(),
   }),
@@ -29,6 +30,8 @@ export const columns = [
     cell: (info) => info.getValue(),
   }),
   columnHelper.accessor("status", {
+    filterFn: "weakEquals",
+    id: "status",
     header: () => "Status",
     cell: (info) => (
       <Badge

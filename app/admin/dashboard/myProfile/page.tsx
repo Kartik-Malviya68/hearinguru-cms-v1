@@ -24,7 +24,7 @@ function page() {
           <Button style={{ height: "fit-content" }} size={"lg"} color="light">
             Reset Changes
           </Button>
-          <Button style={{ height: "fit-content" }} size={"lg"} color="failure">
+          <Button className="hidden" style={{ height: "fit-content" }} size={"lg"} color="failure">
             <span className="mr-1">
               <AiOutlineClose />
             </span>

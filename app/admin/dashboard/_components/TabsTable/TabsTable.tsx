@@ -53,7 +53,7 @@ function TabsTable() {
   };
 
   const tabsNames = [
-    { id: "All", value: "" },
+    { id: "all", value: "" },
     { id: "Pending", value: "Pending" },
     { id: "Not Converted", value: "Not Converted" },
     { id: "Converted", value: "Converted" },
@@ -66,7 +66,7 @@ function TabsTable() {
           {tabsNames.map((name) => (
             <button
               onClick={() =>
-                setColumnFilters([{ id: "status", value: name.value }] as any)
+                setColumnFilters([{ id: "status", value: name.value }])
               }
               className={`p-3 flex items-center duration-100   ${
                 columnFilters[0].value === name.value
@@ -74,7 +74,7 @@ function TabsTable() {
                   : "bg-white text-gray-500 hover:text-gray-800"
               } text-sm font-medium leading-150 rounded gap-[10px]`}
             >
-              {name.id}
+              {name.id === "all" ? "All" : name.id}
               <Tooltip content={name.id}>
                 <IoInformationCircleSharp />
               </Tooltip>
@@ -83,8 +83,10 @@ function TabsTable() {
         </div>
 
         <FilterDropDown
+          table={table}
           columnFilters={columnFilters}
-          setColumnFilters={setColumnFilters as (value: any[]) => void}
+          setColumnFilters={setColumnFilters}
+          buttonName="Filter"
         />
       </div>
       <div className="bg-white shadow w-full flex flex-col rounded-lg">
