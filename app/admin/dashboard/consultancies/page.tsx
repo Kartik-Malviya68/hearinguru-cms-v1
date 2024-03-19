@@ -52,13 +52,16 @@ export default function page() {
   ) => {
     const date = getValues("slot.date");
     const time = getValues("slot.time");
+    const mergedDate = `${date}T${time}`;
     // console.log(date, "date");
     // console.log(xState, "xstate");
 
-    setValue(
-      "slot.dateTime",
-      new Date(`${date.toString().slice(0, 10)}T${time}`)
-    );
+    fetcher({
+      ...data,
+      slot: {
+        dateTime: new Date(mergedDate),
+      },
+    });
 
     getValues().consultancyDetails.type === "repair and maintenance" &&
       router.push(
@@ -70,8 +73,6 @@ export default function page() {
       router.push(
         "/admin/dashboard/consultancies/warrantyConsultancySpecification"
       );
-
-    setValue("slot.dateTime", new Date(`${date}T${selectedTime}`));
     console.log(data, "data");
   };
 
@@ -92,13 +93,7 @@ export default function page() {
             <Button color="light" fullSized size={"md"} outline>
               Cancel
             </Button>
-            <Button
-              onClick={() => setValue("slot.dateTime", new Date(convertedDate))}
-              type="submit"
-              color="blue"
-              fullSized
-              size={"md"}
-            >
+            <Button type="submit" color="blue" fullSized size={"md"}>
               Save
             </Button>
           </div>

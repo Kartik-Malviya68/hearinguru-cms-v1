@@ -33,11 +33,9 @@ function TabsTable() {
     fetcher();
   }, []);
 
-  const data: ConsultancyTypes.ConsultanciesTable[] = state?.data || [];
-
   const [rowSelection, setRowSelection] = React.useState({});
   const table = useReactTable({
-    data,
+    data: state?.data || ([] as any),
     columns,
     state: {
       columnFilters,

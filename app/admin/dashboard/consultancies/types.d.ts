@@ -124,8 +124,8 @@ namespace ConsultancyTypes {
     };
     slot: {
       dateTime: Date;
-      date: Date;
-      time: string;
+      date?: Date;
+      time?: string;
     };
     status: ConsultancyStatus;
     attachments: AttachmentInformation[];
