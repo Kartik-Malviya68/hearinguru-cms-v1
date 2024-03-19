@@ -9,8 +9,8 @@ import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAs
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import createConsultancie from "../_fetch/services/createConsultancy";
-import { date } from "yup";
-import { set } from "date-fns";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function page() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState("");
@@ -42,37 +42,43 @@ export default function page() {
   } = useForm<ConsultancyTypes.AddNewConsultancy>({});
 
   const [xState, loading, fetcher] = useHandleAsync(createConsultancie, {
-    onSuccess: (v) => {
-      console.log(v, "success");
+    onSuccess: () => {
+      toast("Consultancy Created Successfully", { type: "success" });
     },
   });
 
+  console.log(loading);
   const onSubmit: SubmitHandler<ConsultancyTypes.AddNewConsultancy> = (
     data
   ) => {
-    const date = getValues("slot.date");
-    const time = getValues("slot.time");
-    const mergedDate = `${date}T${time}`;
-    // console.log(date, "date");
-    // console.log(xState, "xstate");
+    try {
+      const date = getValues("slot.date");
+      const time = getValues("slot.time");
+      const mergedDate = `${date}T${time}`;
+      // console.log(date, "date");
+      // console.log(xState, "xstate");
 
-    fetcher({
-      ...data,
-      slot: {
-        dateTime: new Date(mergedDate),
-      },
-    });
+      fetcher({
+        ...data,
 
-    getValues().consultancyDetails.type === "repair and maintenance" &&
-      router.push(
-        "/admin/dashboard/consultancies/repairConsultancySpecification"
-      );
-    getValues().consultancyDetails.type === "appointment" &&
-      router.push("/admin/dashboard/consultancies/appointmentSpecification");
-    getValues().consultancyDetails.type === "warranty & exchange" &&
-      router.push(
-        "/admin/dashboard/consultancies/warrantyConsultancySpecification"
-      );
+        slot: {
+          dateTime: new Date(mergedDate),
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    // getValues().consultancyDetails.type === "repair and maintenance" &&
+    //   router.push(
+    //     "/admin/dashboard/consultancies/repairConsultancySpecification"
+    //   );
+    // getValues().consultancyDetails.type === "appointment" &&
+    //   router.push("/admin/dashboard/consultancies/appointmentSpecification");
+    // getValues().consultancyDetails.type === "warranty & exchange" &&
+    //   router.push(
+    //     "/admin/dashboard/consultancies/warrantyConsultancySpecification"
+    //   );
     console.log(data, "data");
   };
 
@@ -81,6 +87,7 @@ export default function page() {
       onSubmit={handleSubmit(onSubmit)}
       className="relative w-full overflow-auto"
     >
+      <ToastContainer />
       <div className="w-full p-8 pb-[39px] sticky top-0 z-20 bg-white  flex justify-between items-center">
         <div className="flex justify-between  items-center w-full">
           <Breadcrumb className="bg-gray-50 px-5 py-3  dark:bg-gray-800 ">
@@ -93,7 +100,13 @@ export default function page() {
             <Button color="light" fullSized size={"md"} outline>
               Cancel
             </Button>
-            <Button type="submit" color="blue" fullSized size={"md"}>
+            <Button
+              type="submit"
+              isProcessing={loading.isLoading()}
+              color="blue"
+              fullSized
+              size={"md"}
+            >
               Save
             </Button>
           </div>
@@ -360,7 +373,7 @@ export default function page() {
                     <div className="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
                       <button
                         type="submit"
-                        className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800"
+                        className="inline-flex hidden items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800"
                       >
                         Save
                       </button>
@@ -429,9 +442,17 @@ export default function page() {
                 Contact Number
               </label>
               <input
-                {...register("patientDetails.phoneNumber", {
-                  required: "Please enter a contact number",
-                })}
+                {...register(
+                  "patientDetails.phoneNumber",
+
+                  {
+                    required: "Please enter a contact number",
+                    pattern: {
+                      value: /^[0-9]*$/,
+                      message: "Please enter a valid contact number",
+                    },
+                  }
+                )}
                 type="text"
                 id="ContactNumber"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -453,6 +474,10 @@ export default function page() {
               <input
                 {...register("patientDetails.email", {
                   required: "Please enter an email",
+                  pattern: {
+                    value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                    message: "Please enter a valid email",
+                  },
                 })}
                 type="text"
                 id="EmailAddress"
@@ -540,7 +565,7 @@ export default function page() {
               </select>
               {errors.slot?.time && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.slot.time?.message}
+                  {errors.slot?.time.message}
                 </p>
               )}
             </div>
@@ -558,16 +583,16 @@ export default function page() {
                 id="Status"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
-                <option disabled value="">
+                <option disabled value={""}>
                   Select status
                 </option>
                 <option value="pending">pending</option>
                 <option value="converted">converted</option>
                 <option value="not-converted">not-converted</option>
               </select>
-              {errors.consultancyDetails?.specification?.status && (
+              {errors.status && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.consultancyDetails.specification.status.message}
+                  {errors.status.message}
                 </p>
               )}
             </div>
@@ -598,14 +623,14 @@ export default function page() {
                   />
                   {errors.consultancyDetails?.message && (
                     <p className="text-red-500 text-xs mt-1">
-                      {errors.consultancyDetails?.message.toString()}
+                      Please enter a message
                     </p>
                   )}
                 </div>
                 <div className="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
                   <button
                     type="submit"
-                    className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800"
+                    className="inline-flex hidden items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800"
                   >
                     Save
                   </button>

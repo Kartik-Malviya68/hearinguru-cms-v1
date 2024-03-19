@@ -122,6 +122,7 @@ namespace ConsultancyTypes {
       specification?: ConsultancyTypeSpecification;
       message: string;
     };
+
     slot: {
       dateTime: Date;
       date?: Date;
