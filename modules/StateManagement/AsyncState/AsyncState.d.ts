@@ -1,4 +1,4 @@
-type AsyncStatus = 'dormant' | 'initialized' | 'success' | 'failed';
+type AsyncStatus = "dormant" | "initialized" | "success" | "failed";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface AsyncState<T = any> {
   status: AsyncStatus;

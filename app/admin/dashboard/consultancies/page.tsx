@@ -7,9 +7,15 @@ import { IoIosSearch } from "react-icons/io";
 import useStamina from "@/modules/StateManagement/Stamina/useStamina";
 import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import createConsultancie from "./_fetch/services/createConsultancie";
 import { useRouter } from "next/navigation";
+import createConsultancie from "../_fetch/services/createConsultancy";
+import { date } from "yup";
+import { set } from "date-fns";
 export default function page() {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState("");
+  const date = selectedDate.toISOString().slice(0, 10);
+  const convertedDate = `${date}T${selectedTime}`;
   const [show, actions] = useStamina({
     initialState: {
       show: false,
@@ -33,7 +39,7 @@ export default function page() {
     setValue,
     control,
     getValues,
-  } = useForm<ConsultancyTypes.AddNewConsultancy>();
+  } = useForm<ConsultancyTypes.AddNewConsultancy>({});
 
   const [xState, loading, fetcher] = useHandleAsync(createConsultancie, {
     onSuccess: (v) => {
@@ -44,29 +50,31 @@ export default function page() {
   const onSubmit: SubmitHandler<ConsultancyTypes.AddNewConsultancy> = (
     data
   ) => {
-    fetcher(data);
-    console.log(xState, "xstate");
-    getValues().consutationType === "Repair and Maintenance" &&
+    const date = getValues("slot.date");
+    const time = getValues("slot.time");
+    // console.log(date, "date");
+    // console.log(xState, "xstate");
+
+    setValue(
+      "slot.dateTime",
+      new Date(`${date.toString().slice(0, 10)}T${time}`)
+    );
+
+    getValues().consultancyDetails.type === "repair and maintenance" &&
       router.push(
         "/admin/dashboard/consultancies/repairConsultancySpecification"
       );
-    getValues().consutationType === "Appointment" &&
+    getValues().consultancyDetails.type === "appointment" &&
       router.push("/admin/dashboard/consultancies/appointmentSpecification");
-    getValues().consutationType === "Repair and Maintenance" &&
+    getValues().consultancyDetails.type === "warranty & exchange" &&
       router.push(
         "/admin/dashboard/consultancies/warrantyConsultancySpecification"
       );
+
+    setValue("slot.dateTime", new Date(`${date}T${selectedTime}`));
+    console.log(data, "data");
   };
-  // const onSubmit = (data: ConsultancyTypes.AddNewConsultancy) => {
-  //   try {
-  //     fetcher(data);
-  //     getValues().consutationType === "Repair and Maintenance" && router.push("/admin/dashboard/consultancies/repairConsultancySpecification")
-  //     getValues().consutationType === "Appointment" && router.push("/admin/dashboard/consultancies/appointmentSpecification")
-  //     getValues().consutationType === "Repair and Maintenance" && router.push("/admin/dashboard/consultancies/warrantyConsultancySpecification")
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -84,7 +92,13 @@ export default function page() {
             <Button color="light" fullSized size={"md"} outline>
               Cancel
             </Button>
-            <Button type="submit" color="blue" fullSized size={"md"}>
+            <Button
+              onClick={() => setValue("slot.dateTime", new Date(convertedDate))}
+              type="submit"
+              color="blue"
+              fullSized
+              size={"md"}
+            >
               Save
             </Button>
           </div>
@@ -98,7 +112,7 @@ export default function page() {
               className="flex items-center w-full justify-between"
             >
               <h4 className="text-gray-500 leading-150 uppercase font-semibold">
-                Add New COnsultancy
+                Add New Consultancy
               </h4>
               <IoClose />
             </div>
@@ -112,13 +126,15 @@ export default function page() {
               <input
                 type="text"
                 id="Name"
-                {...register("name", { required: "Please enter your name" })}
+                {...register("patientDetails.name", {
+                  required: "Please enter your name",
+                })}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Add Name"
               />
-              {errors.name && (
+              {errors.patientDetails?.name && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.name.message}
+                  {errors.patientDetails.name.message}
                 </p>
               )}
             </div>
@@ -130,11 +146,11 @@ export default function page() {
                 Consultation Type
               </label>
               <select
-                {...register("consutationType", {
+                {...register("consultancyDetails.type", {
                   required: "Please select a type",
                 })}
                 onChange={(e) =>
-                  e.target.value !== "Appointment"
+                  e.target.value !== "appointment"
                     ? actions.setShow()
                     : actions.setHide()
                 }
@@ -144,15 +160,15 @@ export default function page() {
                 <option disabled selected value="">
                   Select Type
                 </option>
-                <option value="Repair and Maintenance">
+                <option value="repair and maintenance">
                   Repair and Maintenance
                 </option>
-                <option value="Appointment">Appointment</option>
-                <option value="Warranty & Exchange">Warranty & Exchange</option>
+                <option value="appointment">Appointment</option>
+                <option value="warranty & exchange">Warranty & Exchange</option>
               </select>
-              {errors.consutationType && (
+              {errors.consultancyDetails?.type && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.consutationType.message}
+                  Please Select a Consultation Type
                 </p>
               )}
             </div>
@@ -166,7 +182,7 @@ export default function page() {
                     Select Hearing Aid Company
                   </label>
                   <select
-                    {...register("consultancySubType.Company", {
+                    {...register("consultancyDetails.specification.company", {
                       required: "Please select a company",
                     })}
                     id="SelectHearingAidCompany"
@@ -183,9 +199,9 @@ export default function page() {
                     <option value="Widex">Widex</option>
                     <option value="Others">Others</option>
                   </select>
-                  {errors.consultancySubType?.Company && (
+                  {errors.consultancyDetails?.specification?.company && (
                     <p className="text-red-500 text-xs mt-1">
-                      {errors.consultancySubType.Company.message}
+                      {errors.consultancyDetails.specification.company.message}
                     </p>
                   )}
                 </div>
@@ -197,10 +213,13 @@ export default function page() {
                     Select Hearing Aid Category
                   </label>
                   <select
-                    {...register("consultancySubType.Cetegory", {
-                      required: "Please select a category",
-                    })}
-                    id="SelectHearingAidCompany"
+                    {...register(
+                      "consultancyDetails.specification.hearingAidCategory",
+                      {
+                        required: "Please select a category",
+                      }
+                    )}
+                    id="SelectHearingAidCategory"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
                     <option disabled selected value="">
@@ -225,9 +244,13 @@ export default function page() {
                       Don’t Know For Now
                     </option>
                   </select>
-                  {errors.consultancySubType?.Cetegory && (
+                  {errors.consultancyDetails?.specification
+                    ?.hearingAidCategory && (
                     <p className="text-red-500 text-xs mt-1">
-                      {errors.consultancySubType.Cetegory.message}
+                      {
+                        errors.consultancyDetails.specification
+                          .hearingAidCategory.message
+                      }
                     </p>
                   )}
                 </div>
@@ -239,7 +262,7 @@ export default function page() {
                     Select Issue
                   </label>
                   <select
-                    {...register("consultancySubType.Issue", {
+                    {...register("consultancyDetails.specification.issue", {
                       required: "Please select an issue",
                     })}
                     id="SelectIssue"
@@ -268,9 +291,9 @@ export default function page() {
                     </option>
                     <option value="I Don’t Know">I Don’t Know</option>
                   </select>
-                  {errors.consultancySubType?.Issue && (
+                  {errors.consultancyDetails?.specification?.issue && (
                     <p className="text-red-500 text-xs mt-1">
-                      {errors.consultancySubType.Issue.message}
+                      {errors.consultancyDetails?.specification?.issue.message}
                     </p>
                   )}
                 </div>
@@ -279,29 +302,25 @@ export default function page() {
                     htmlFor="SelectStatus"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    Select
+                    Select status
                   </label>
                   <select
-                    {...register("consultancySubType.Status", {
+                    {...register("consultancyDetails.specification.status", {
                       required: "Please select a status",
                     })}
                     id="Select Status"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option disabled value="US">
-                      Select Status Type
+                    <option disabled selected value="">
+                      Select Hearing Aid Status
                     </option>
-                    <option value="Repair and Maintenance">
-                      Repair and Maintenance
-                    </option>
-                    <option value="Appointment">Appointment</option>
-                    <option value="Warranty & Exchange">
-                      Warranty & Exchange
-                    </option>
+                    <option value="pending">Pending</option>
+                    <option value="converted">converted</option>
+                    <option value="not-converted">not-converted</option>
                   </select>
-                  {errors.consultancySubType?.Status && (
+                  {errors.consultancyDetails?.specification?.status && (
                     <p className="text-red-500 text-xs mt-1">
-                      {errors.consultancySubType.Status.message}
+                      {errors.consultancyDetails?.specification?.status.message}
                     </p>
                   )}
                 </div>
@@ -321,18 +340,25 @@ export default function page() {
                         Your comment
                       </label>
                       <textarea
-                        {...register("consultancySubType.issueMSG", {
-                          required: "Please enter a message",
-                        })}
+                        {...register(
+                          "consultancyDetails.specification.issueDetails",
+                          {
+                            required: "Please enter a message",
+                          }
+                        )}
                         id="comment"
                         rows={4}
                         className="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
                         placeholder="Write text here ..."
                         defaultValue={""}
                       />
-                      {errors.consultancySubType?.issueMSG && (
+                      {errors.consultancyDetails?.specification
+                        ?.issueDetails && (
                         <p className="text-red-500 text-xs mt-1">
-                          {errors.consultancySubType.issueMSG.message}
+                          {
+                            errors.consultancyDetails?.specification
+                              ?.issueDetails.message
+                          }
                         </p>
                       )}
                     </div>
@@ -408,7 +434,7 @@ export default function page() {
                 Contact Number
               </label>
               <input
-                {...register("ContactNumber", {
+                {...register("patientDetails.phoneNumber", {
                   required: "Please enter a contact number",
                 })}
                 type="text"
@@ -416,9 +442,9 @@ export default function page() {
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="+91 Mobile Number"
               />
-              {errors.ContactNumber && (
+              {errors.patientDetails?.phoneNumber && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.ContactNumber.message}
+                  {errors.patientDetails?.phoneNumber.message}
                 </p>
               )}
             </div>
@@ -430,15 +456,17 @@ export default function page() {
                 Email Address
               </label>
               <input
-                {...register("Email", { required: "Please enter an email" })}
+                {...register("patientDetails.email", {
+                  required: "Please enter an email",
+                })}
                 type="text"
                 id="EmailAddress"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Email here"
               />
-              {errors.Email && (
+              {errors.patientDetails?.email && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.Email.message}
+                  {errors.patientDetails.email.message}
                 </p>
               )}
             </div>
@@ -468,21 +496,29 @@ export default function page() {
               >
                 Slot date
               </label>
-
               <Controller
                 control={control}
-                name="slots.Date"
-                render={({ field: { onChange, onBlur, value, ref } }) => (
+                name="slot.date"
+                rules={{ required: "Please select a date" }}
+                render={({ field }) => (
                   <Datepicker
-                    onChange={onChange}
-                    defaultDate={value}
-                    color="blue"
+                    defaultDate={selectedDate}
+                    onSelectedDateChanged={(date) => {
+                      field.onChange(date.toISOString().slice(0, 10));
+                    }}
                   />
                 )}
-              ></Controller>
-              {errors.slots?.Date && (
+              />
+              {/* <Datepicker
+                defaultDate={selectedDate}
+                onSelectedDateChanged={(date) => {
+                  setSelectedDate(date);
+                }}
+              /> */}
+
+              {errors.slot?.date && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.slots.Date.message}
+                  {errors.slot?.date.message}
                 </p>
               )}
             </div>
@@ -494,8 +530,8 @@ export default function page() {
                 Slot Time
               </label>
               <select
-                {...register("slots.Time", {
-                  required: "Please select a status",
+                {...register("slot.time", {
+                  required: "Please select a time",
                 })}
                 id="Select Status"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -503,12 +539,13 @@ export default function page() {
                 <option disabled selected value={""}>
                   Select Time
                 </option>
-                <option value="12:00 PM">12:00 PM</option>
-                <option value="03:00 PM">03:00 PM</option>
+                <option value={"06:30:00.000Z"}>12:00 AM</option>
+                <option value={"09:30:00.000Z"}>03:00 PM</option>
+                <option value={"12:30:00.000Z"}>06:00 PM</option>
               </select>
-              {errors.slots?.Time && (
+              {errors.slot?.time && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.slots.Time.message}
+                  {errors.slot.time?.message}
                 </p>
               )}
             </div>
@@ -520,16 +557,22 @@ export default function page() {
                 Status
               </label>
               <select
-                {...register("status", { required: "Please select a status" })}
+                {...register("status", {
+                  required: "Please select a status",
+                })}
                 id="Status"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
-                <option value="US">Pending</option>
-                <option value="US">Success</option>
+                <option disabled value="">
+                  Select status
+                </option>
+                <option value="pending">pending</option>
+                <option value="converted">converted</option>
+                <option value="not-converted">not-converted</option>
               </select>
-              {errors.status && (
+              {errors.consultancyDetails?.specification?.status && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.status.message}
+                  {errors.consultancyDetails.specification.status.message}
                 </p>
               )}
             </div>
@@ -549,8 +592,8 @@ export default function page() {
                     Your comment
                   </label>
                   <textarea
-                    {...register("messages", {
-                      required: "Please enter a message",
+                    {...register("consultancyDetails.message", {
+                      required: true,
                     })}
                     id="comment"
                     rows={4}
@@ -558,9 +601,9 @@ export default function page() {
                     placeholder="Write text here ..."
                     defaultValue={""}
                   />
-                  {errors.messages && (
+                  {errors.consultancyDetails?.message && (
                     <p className="text-red-500 text-xs mt-1">
-                      {errors.messages.message}
+                      {errors.consultancyDetails?.message.toString()}
                     </p>
                   )}
                 </div>

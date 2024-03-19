@@ -1,5 +1,5 @@
 import { Pagination, Tooltip } from "flowbite-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoInformationCircleSharp } from "react-icons/io5";
 import { IoIosSearch } from "react-icons/io";
 import { DateRangePicker, Stack } from "rsuite";
@@ -11,18 +11,33 @@ import {
   getPaginationRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
+  Table,
+  TableOptions,
 } from "@tanstack/react-table";
 import ConsultanciesTable from "../ConsultanciesTable/ConsultanciesTable";
-import { consultanciesTable } from "../ConsultanciesTable/data";
 import FilterDropDown from "../FilterDropDown/FilterDropDown";
 import { columns } from "./columns";
+import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
+import getAllConsultancie from "../../_fetch/services/getAllConsultancie";
 function TabsTable() {
   const [columnFilters, setColumnFilters] = useState([
     { id: "status", value: "" },
   ]);
+
+  const [state, loading, fetcher] = useHandleAsync(getAllConsultancie, {
+    successMessage: "Consultancies Fetched",
+    errMessage: "Failed to fetch Consultancies",
+  });
+
+  useEffect(() => {
+    fetcher();
+  }, []);
+
+  const data: ConsultancyTypes.ConsultanciesTable[] = state?.data || [];
+
   const [rowSelection, setRowSelection] = React.useState({});
   const table = useReactTable({
-    data: consultanciesTable,
+    data,
     columns,
     state: {
       columnFilters,
@@ -53,10 +68,10 @@ function TabsTable() {
   };
 
   const tabsNames = [
-    { id: "all", value: "" },
-    { id: "Pending", value: "Pending" },
-    { id: "Not Converted", value: "Not Converted" },
-    { id: "Converted", value: "Converted" },
+    { id: "1", value: "" },
+    { id: "2", value: "pending" },
+    { id: "3", value: "not-converted" },
+    { id: "4", value: "converted" },
   ];
 
   return (
@@ -65,6 +80,7 @@ function TabsTable() {
         <div className="flex items-center">
           {tabsNames.map((name) => (
             <button
+              key={name.id}
               onClick={() =>
                 setColumnFilters([{ id: "status", value: name.value }])
               }
@@ -74,8 +90,11 @@ function TabsTable() {
                   : "bg-white text-gray-500 hover:text-gray-800"
               } text-sm font-medium leading-150 rounded gap-[10px]`}
             >
-              {name.id === "all" ? "All" : name.id}
-              <Tooltip content={name.id}>
+              {name.value === "" ? "All" : name.value.toUpperCase()}
+              <Tooltip
+                key={name.value}
+                content={name.value === "" ? "All" : name.value.toUpperCase()}
+              >
                 <IoInformationCircleSharp />
               </Tooltip>
             </button>

@@ -39,21 +39,21 @@ function EmptyState() {
         clip-rule="evenodd"
         d="M57.5438 75.2706V93.1498C57.5438 93.8022 58.0726 94.3311 58.725 94.3311H110.025C110.677 94.3311 111.206 93.8022 111.206 93.1498V75.2706L104.797 56.3214C104.635 55.8415 104.185 55.5186 103.678 55.5186H65.0716C64.565 55.5186 64.1149 55.8415 63.9526 56.3214L57.5438 75.2706Z"
         stroke="#5B7CE2"
-        stroke-width="1.6875"
+        strokeWidth="1.6875"
       />
       <path
         d="M66.15 74.9248C68.8072 74.9248 71.6748 74.9248 74.7528 74.9248C76.0193 74.9248 76.0193 75.8148 76.0193 76.2748C76.0193 80.7483 79.7292 84.3748 84.3057 84.3748C88.8821 84.3748 92.592 80.7483 92.592 76.2748C92.592 75.8148 92.592 74.9248 93.8585 74.9248H110.7M61.1373 74.9248H62.775H61.1373Z"
         stroke="#5B7CE2"
-        stroke-width="1.6875"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.6875"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M101.317 39.3545L93.825 47.7604M83.7672 36.4502V47.7604V36.4502ZM66.15 39.3545L73.6422 47.7604L66.15 39.3545Z"
         stroke="#75A4FE"
-        stroke-width="1.6875"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.6875"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

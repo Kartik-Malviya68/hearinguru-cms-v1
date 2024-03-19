@@ -31,7 +31,9 @@ function FilterDropDown(props: Props) {
         <Popover.Panel className="absolute bg-white w-[200px] -translate-x-1/2 transform px-4 sm:px-0">
           <div className="overflow-hidden z-[200] rounded-lg shadow-lg ring-1 ring-black/5">
             {Filters.map((item) => (
+
               <label
+                key={item.id}
                 htmlFor={item.id}
                 className="flex items-center p-3 hover:bg-gray-100 duration-200 cursor-pointer"
               >
