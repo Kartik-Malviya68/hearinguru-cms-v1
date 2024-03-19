@@ -37,6 +37,7 @@ export default function page() {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
     control,
     getValues,
   } = useForm<ConsultancyTypes.AddNewConsultancy>({});
@@ -44,6 +45,10 @@ export default function page() {
   const [xState, loading, fetcher] = useHandleAsync(createConsultancie, {
     onSuccess: () => {
       toast("Consultancy Created Successfully", { type: "success" });
+      reset();
+    },
+    onError: () => {
+      toast("Failed to create Consultancy", { type: "error" });
     },
   });
 
@@ -586,7 +591,7 @@ export default function page() {
                 <option disabled value={""}>
                   Select status
                 </option>
-                <option value="pending">pending</option>
+                <option selected value="pending">pending</option>
                 <option value="converted">converted</option>
                 <option value="not-converted">not-converted</option>
               </select>
