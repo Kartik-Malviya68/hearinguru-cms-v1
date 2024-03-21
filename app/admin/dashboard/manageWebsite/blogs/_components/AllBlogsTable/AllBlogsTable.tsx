@@ -1,5 +1,5 @@
 import { Button, Pagination } from "flowbite-react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Table from "../BlogTable/BlogTable";
 import {
   flexRender,
@@ -13,6 +13,11 @@ import { dummyData } from "../BlogTable/DummyData";
 import columns from "../BlogTable/TableColumn";
 import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
 import fetchBlogData from "../../_fetch/services/getBlogData";
+import RedModals from "@/components/Modals/RedModals/RedModals";
+import { useToggle } from "@/modules/StateManagement/useToggle/useToggle";
+import deleteBlog from "../../_fetch/services/deleteBlog";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export interface AllBlogsTableInteraction {
   filterRecordsFromQuery: (query: string) => void;
@@ -23,6 +28,7 @@ interface Props {
 }
 
 function AllBlogsTable({ setInteraction }: Props) {
+  const [showModal, setShowModal] = useToggle();
   const [checked, setChecked] = useState(true);
   const onPageChange = (page: number) => {
     table.setState((old) => {
@@ -40,6 +46,17 @@ function AllBlogsTable({ setInteraction }: Props) {
   React.useEffect(() => {
     fetcher();
   }, []);
+
+  const [dState, dLoading, dFetcher] = useHandleAsync(deleteBlog, {
+    onSuccess: () => {
+      toast("Blog Deleted Successfully", { type: "success" });
+      window.location.reload();
+    },
+    onError: () => {
+      toast("Error Deleting Blog", { type: "error" });
+    },
+  });
+
   const [columnFilters, setColumnFilters] = React.useState([
     { id: "category", value: "" },
   ]);
@@ -62,7 +79,22 @@ function AllBlogsTable({ setInteraction }: Props) {
       },
     },
   });
+  useEffect(() => {
+    const selectedLength = Object.entries(table.getState().rowSelection).length;
+    setChecked(selectedLength !== 0);
+    console.log("table.getState().rowSelection", table.getState().rowSelection);
+  }, [Object.entries(table.getState().rowSelection).length]);
 
+  const selectedBlogs = (() => {
+    const selectedIndices = Object.keys(table.getState().rowSelection);
+    return selectedIndices.map((v) => (xstate ? xstate[parseInt(v)] : null));
+  })();
+  console.log(
+    "selectedBlogs",
+    selectedBlogs.map((v) => v?.blogId || "").join(",")
+  );
+
+  table.getState().rowSelection;
   const buttonTabs = [
     { id: 1, name: "All", value: "" },
     { id: 2, name: "Hear loss", value: "Hear loss" },
@@ -80,6 +112,17 @@ function AllBlogsTable({ setInteraction }: Props) {
 
   return (
     <>
+      <RedModals
+        from="Blog"
+        title={selectedBlogs.map((v) => v?.title || "").join(",")}
+        redBtnLoading={dLoading.isLoading()}
+        redButton={() => {
+          dFetcher(selectedBlogs.map((v) => v?.blogId || "").join(","));
+        }}
+        openModal={showModal}
+        setOpenModal={setShowModal.hide}
+      />
+      <ToastContainer />
       <div className="flex justify-between gap-5 w-full">
         <div className="flex items-center">
           {buttonTabs.map((tab) => (
@@ -100,8 +143,9 @@ function AllBlogsTable({ setInteraction }: Props) {
         </div>
 
         <Button
+          onClick={setShowModal.toggle}
           color="failure"
-          disabled={checked}
+          disabled={!checked}
           className="w-[147px]"
           size={"sm"}
         >

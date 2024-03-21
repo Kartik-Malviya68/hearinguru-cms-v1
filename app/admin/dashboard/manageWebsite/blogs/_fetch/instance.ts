@@ -1,7 +1,7 @@
-import AxiosFactory from '@/modules/axios/AxiosFactory';
+import AxiosFactory from "@/modules/axios/AxiosFactory";
 
 const BlogDataInstance = AxiosFactory.createInstance({
-  baseURL: '',
+  baseURL: "admin/blogs/",
 });
 
 export default BlogDataInstance;

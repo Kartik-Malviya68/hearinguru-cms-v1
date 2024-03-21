@@ -21,13 +21,13 @@ namespace ConsultancyTypes {
   //   status: "Pending" | "Not Converted" | "Converted";
   // }
 
-  interface AddNewConsultancy {
-    company: string;
-    hearingAidCategory: string;
-    issue: string;
-    status: string;
-    issueDetails: string;
-  }
+  // interface AddNewConsultancy {
+  //   company: string;
+  //   hearingAidCategory: string;
+  //   issue: string;
+  //   status: string;
+  //   issueDetails: string;
+  // }
 
   export interface ConsultancyDocument {
     patientDetails: {
@@ -95,10 +95,10 @@ namespace ConsultancyTypes {
   // }
 
   export type ConsultancyType =
-    | "repair and maintenance"
-    | "appointment"
-    | "warranty & exchange";
-  export type ConsultancyStatus = "pending" | "converted" | "not-converted";
+    | "Repair & Maintenance"
+    | "Appointment"
+    | "Warranty & Exchange";
+  export type ConsultancyStatus = "Pending" | "Converted" | "Not Converted";
 
   export interface AttachmentInformation {
     link: string;

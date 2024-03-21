@@ -7,9 +7,11 @@ import { IoClose } from "react-icons/io5";
 import useStamina from "@/modules/StateManagement/Stamina/useStamina";
 import Image from "next/image";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
-import { useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
 import addNewArticleBlog from "../../_fetch/services/addNewArticleBlog";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 interface Props {
   closeDrawer: () => void;
   openDrawer: boolean;
@@ -44,18 +46,41 @@ function AddNewArticle(props: Props) {
   const {
     register,
     handleSubmit,
+    control,
+    reset,
     formState: { errors },
   } = useForm<BlogTypes.addNewArticleBlog>({});
 
-  const [xstate, loading, fetch] = useHandleAsync(addNewArticleBlog);
+  const [xstate, loading, fetcher] = useHandleAsync(addNewArticleBlog, {
+    onSuccess: () => {
+      // closeDrawer();
+      toast("Blog Created Successfully", { type: "success" });
+      reset();
+    },
+    onError: () => {
+      toast("Failed to create Consultancy", { type: "error" });
+    },
+  });
 
-  const onSubmit = (data: BlogTypes.addNewArticleBlog) => {
-    fetch(data);
+  const onSubmit: SubmitHandler<BlogTypes.addNewArticleBlog> = (data) => {
+    try {
+      fetcher({
+        ...data,
+
+        image:
+          "https://plus.unsplash.com/premium_photo-1710795018356-4b22df77cf8f",
+      });
+      console.log(data);
+    } catch (error) {}
     console.log(data);
   };
   return (
     <Drawer anchor="right" open={openDrawer} onClose={closeDrawer}>
-      <form className="w-[706px]  flex pt-0 p-4 flex-col items-start gap-8 ">
+      <ToastContainer />
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-[706px]  flex pt-0 p-4 flex-col items-start gap-8 "
+      >
         <div
           id="heading"
           className="flex gap-2 sticky top-0  bg-white py-4 z-20 items-center w-full justify-between"
@@ -74,12 +99,13 @@ function AddNewArticle(props: Props) {
             Delete
           </Button>
           <Button
-            onClick={handleSubmit(onSubmit)}
+            type="submit"
+            isProcessing={loading.isLoading()}
             color="blue"
             fullSized
             size={"sm"}
           >
-            Confirm Changes
+            Save
           </Button>
         </div>
         <div className="w-full">
@@ -131,7 +157,13 @@ function AddNewArticle(props: Props) {
             Slug
           </label>
           <input
-            {...register("slug", { required: "Please enter slug" })}
+            {...register("slug", {
+              required: "Please enter slug",
+              // pattern: {
+              //   value: /^[A-Za-z0-9-]+$/,
+              //   message: "Please enter valid slug",
+              // },
+            })}
             type="Slug"
             id="EmailAddress"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -153,13 +185,23 @@ function AddNewArticle(props: Props) {
           >
             Date
           </label>
-          <Datepicker
-            {...register("date", { required: "Please enter date" })}
-            color={"blue"}
-            placeholder="Select date"
+          <Controller
+            control={control}
+            name="createdDate"
+            rules={{ required: "Please select a date" }}
+            render={({ field }) => (
+              <Datepicker
+                defaultDate={new Date()}
+                onSelectedDateChanged={(date) => {
+                  field.onChange(date.toISOString());
+                }}
+              />
+            )}
           />
-          {errors.date && (
-            <p className="text-red-500 mt-1 text-xs">{errors.date.message}</p>
+          {errors.createdDate && (
+            <p className="text-red-500 mt-1 text-xs">
+              {errors.createdDate.message}
+            </p>
           )}
         </div>
         <div className="w-full">
@@ -174,8 +216,13 @@ function AddNewArticle(props: Props) {
             id="Category"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
-            <option value="pending">Pending</option>
-            <option value="Success">Success</option>
+            <option disabled defaultValue={""} value="">
+              Select Category
+            </option>
+            <option value="Hear Loss">Hear loss</option>
+            <option value="Types And Causes">Types & Causes</option>
+            <option value="Symptoms">Symptoms</option>
+            <option value="Prevention">Prevention</option>
           </select>
           {errors.category && (
             <p className="text-red-500 mt-1 text-xs">
@@ -225,18 +272,19 @@ function AddNewArticle(props: Props) {
             Preference
           </label>
           <select
-            {...register("preference", { required: "Please enter preference" })}
+            {...register("prefrence", { required: "Please enter preference" })}
             id="Preference"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
-            <option selected value="US">
-              Pending
+            <option disabled defaultValue={""} value="US">
+              Select Prefrence
             </option>
-            <option value="US">Success</option>
+            <option value="Latest">Latest</option>
+            <option value="Old">Old</option>
           </select>
-          {errors.preference && (
+          {errors.prefrence && (
             <p className="text-red-500 mt-1 text-xs">
-              {errors.preference.message}
+              {errors.prefrence.message}
             </p>
           )}
         </div>
@@ -334,7 +382,7 @@ function AddNewArticle(props: Props) {
             Author Name
           </label>
           <input
-            {...register("authorName", {
+            {...register("author.name", {
               required: "Please enter author name",
             })}
             type="text"
@@ -342,9 +390,9 @@ function AddNewArticle(props: Props) {
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Enter Author Name"
           />
-          {errors.authorName && (
+          {errors.author?.name && (
             <p className="text-red-500 mt-1 text-xs">
-              {errors.authorName.message}
+              {errors.author?.name.message}
             </p>
           )}
         </div>
@@ -366,7 +414,7 @@ function AddNewArticle(props: Props) {
               </label>
               <textarea
                 id="comment"
-                {...register("aboutAuthor", {
+                {...register("author.about", {
                   required: "Please enter about author",
                 })}
                 rows={4}
@@ -374,9 +422,9 @@ function AddNewArticle(props: Props) {
                 placeholder="Write text here ..."
                 defaultValue={""}
               />
-              {errors.aboutAuthor && (
+              {errors.author?.about && (
                 <p className="text-red-500 mt-1 text-xs">
-                  {errors.aboutAuthor.message}
+                  {errors.author?.about.message}
                 </p>
               )}
             </div>
@@ -388,4 +436,3 @@ function AddNewArticle(props: Props) {
 }
 
 export default AddNewArticle;
-  

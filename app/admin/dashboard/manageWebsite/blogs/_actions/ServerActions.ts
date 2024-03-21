@@ -22,4 +22,14 @@ export default class ServerActions extends ServerStateUtils<BlogTypes.State> {
       });
     }
   }
+  async deleteBlogData() {
+    const res = await this.handleAsync("deleteBlogData", () =>
+      this.deleteBlogData()
+    );
+    if (res) {
+      this.mutateState(() => {
+        return res;
+      });
+    }
+  }
 }

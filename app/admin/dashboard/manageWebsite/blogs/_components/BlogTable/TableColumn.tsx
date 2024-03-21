@@ -3,7 +3,7 @@ import { Checkbox } from "flowbite-react";
 import { Dialog, Popover, Transition } from "@headlessui/react";
 import Image from "next/image";
 import { Fragment, useState } from "react";
-
+import moment from "moment";
 const imagePopoverLinks = [
   {
     title: "View Blog",
@@ -25,8 +25,10 @@ const imagePopoverLinks = [
 const columnHelper = createColumnHelper<BlogTypes.BlogTable>();
 import React from "react";
 import Link from "next/link";
+import { info } from "console";
+import { set } from "date-fns";
 
-const columns = ({ setChecked }: { setChecked: (e: any) => void }) => {
+const columns = ({ setChecked }: { setChecked: (e: boolean) => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState("");
 
@@ -42,23 +44,21 @@ const columns = ({ setChecked }: { setChecked: (e: any) => void }) => {
     columnHelper.display({
       id: "select",
       header: ({ table }) => {
-        setChecked(!table.getIsAllPageRowsSelected());
         return (
           <Checkbox
             checked={table.getIsAllPageRowsSelected()}
             onChange={(value) => {
+              setChecked(value.target.checked);
               table.toggleAllPageRowsSelected(value.target.checked);
             }}
             color={"blue"}
           />
         );
-      },
+      },  
       cell: ({ row }) => {
-        setChecked(row.getIsSelected());
-        console.log(row.getIsSelected());
-
         return (
           <Checkbox
+            // value={row.getValue("blogId")}
             checked={row.getIsSelected()}
             onChange={(value) => {
               row.toggleSelected(value.target.checked);
@@ -67,11 +67,21 @@ const columns = ({ setChecked }: { setChecked: (e: any) => void }) => {
           />
         );
       },
-
-      enableSorting: false,
-      enableHiding: false,
     }),
-
+    // columnHelper.accessor("blogID", {
+    //   cell: (info) => {
+    //     return (
+    //       <Checkbox
+    //         value={info.getValue()}
+    //         checked={info.row.getIsSelected()}
+    //         onChange={(value) => {
+    //           info.row.toggleSelected(value.target.checked);
+    //         }}
+    //         color={"blue"}
+    //       />
+    //     );
+    //   },
+    // }),
     columnHelper.accessor("title", {
       header: () => "Title",
       cell: (info) => info.getValue(),
@@ -82,7 +92,7 @@ const columns = ({ setChecked }: { setChecked: (e: any) => void }) => {
     }),
     columnHelper.accessor("date", {
       header: () => "Date",
-      cell: (info) => info.getValue().toLocaleString("en-IN"),
+      cell: (info) => moment(info.getValue()).format("LLL"),
     }),
     columnHelper.accessor("category", {
       header: () => "Category",

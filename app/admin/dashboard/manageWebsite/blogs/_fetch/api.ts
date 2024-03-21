@@ -1,5 +1,5 @@
 export const api = {
-    getBlogData: 'getBlogData',
-    addNewArticle: 'addNewArticle'
-
-}
+  getBlogList: "getBlogList",
+  addNewArticle: "create",
+  deleteBlog: "deleteBlog",
+};

@@ -12,10 +12,6 @@ import createConsultancie from "../_fetch/services/createConsultancy";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 export default function page() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState("");
-  const date = selectedDate.toISOString().slice(0, 10);
-  const convertedDate = `${date}T${selectedTime}`;
   const [show, actions] = useStamina({
     initialState: {
       show: false,
@@ -57,12 +53,11 @@ export default function page() {
     data
   ) => {
     try {
-      const date = getValues("slot.date");
+      const date = getValues("slot.date")?.toISOString().slice(0, 10);
       const time = getValues("slot.time");
       const mergedDate = `${date}T${time}`;
-      // console.log(date, "date");
-      // console.log(xState, "xstate");
-
+      console.log(date, "date");
+      console.log(time, "time");
       fetcher({
         ...data,
 
@@ -163,7 +158,7 @@ export default function page() {
                   required: "Please select a type",
                 })}
                 onChange={(e) =>
-                  e.target.value !== "appointment"
+                  e.target.value !== "Appointment"
                     ? actions.setShow()
                     : actions.setHide()
                 }
@@ -173,11 +168,11 @@ export default function page() {
                 <option disabled selected value="">
                   Select Type
                 </option>
-                <option value="repair and maintenance">
-                  Repair and Maintenance
+                <option value="Repair & Maintenance">
+                  Repair & Maintenance
                 </option>
-                <option value="appointment">Appointment</option>
-                <option value="warranty & exchange">Warranty & Exchange</option>
+                <option value="Appointment">Appointment</option>
+                <option value="Warranty & Exchange">Warranty & Exchange</option>
               </select>
               {errors.consultancyDetails?.type && (
                 <p className="text-red-500 text-xs mt-1">
@@ -327,9 +322,9 @@ export default function page() {
                     <option disabled selected value="">
                       Select Hearing Aid Status
                     </option>
-                    <option value="pending">Pending</option>
-                    <option value="converted">converted</option>
-                    <option value="not-converted">not-converted</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Converted">converted</option>
+                    <option value="Not Converted">not-converted</option>
                   </select>
                   {errors.consultancyDetails?.specification?.status && (
                     <p className="text-red-500 text-xs mt-1">
@@ -527,9 +522,10 @@ export default function page() {
                 rules={{ required: "Please select a date" }}
                 render={({ field }) => (
                   <Datepicker
-                    defaultDate={selectedDate}
+                    defaultDate={new Date()}
                     onSelectedDateChanged={(date) => {
-                      field.onChange(date.toISOString().slice(0, 10));
+                      field.onChange(date);
+                      console.log(date, "date");
                     }}
                   />
                 )}
@@ -591,9 +587,11 @@ export default function page() {
                 <option disabled value={""}>
                   Select status
                 </option>
-                <option selected value="pending">pending</option>
-                <option value="converted">converted</option>
-                <option value="not-converted">not-converted</option>
+                <option selected value="Pending">
+                  Pending
+                </option>
+                <option value="Converted">Converted</option>
+                <option value="Not Converted">Not Converted</option>
               </select>
               {errors.status && (
                 <p className="text-red-500 text-xs mt-1">

@@ -1,23 +1,26 @@
 namespace BlogTypes {
   interface BlogTable {
+    blogId: string;
     title: string;
     slug: string;
     date: Date;
-    category: 'Hear Loss' | 'Types And Causes' | 'Symptoms' | 'Prevention';
+    category: "Hear Loss" | "Types And Causes" | "Symptoms" | "Prevention";
     mainImage: string;
   }
-
 
   interface addNewArticleBlog {
     title: string;
     subtitle: string;
     slug: string;
-    date: Date;
+    createdDate: Date;
     category: string;
-    preference: string;
+    image: string;
     message: string;
-    authorName: string;
-    aboutAuthor: string;
+    prefrence: string;
+    author: {
+      name: string;
+      about: string;
+    };
   }
   interface State {
     loading: Record<string, AsyncState>;
