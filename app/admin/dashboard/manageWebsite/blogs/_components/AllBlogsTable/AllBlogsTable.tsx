@@ -9,7 +9,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { dummyData } from "../BlogTable/DummyData";
+
 import columns from "../BlogTable/TableColumn";
 import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
 import fetchBlogData from "../../_fetch/services/getBlogData";

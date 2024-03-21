@@ -44,7 +44,6 @@ export default function consultancies() {
   });
   return (
     <>
-      
       <EditProfileDrawer
         openDrawer={DrawerVisible.DrawerVisible}
         closeDrawer={actions.closeDrawer}
@@ -197,6 +196,12 @@ export default function consultancies() {
       <RedModals
         openModal={openModal.openModal}
         setOpenModal={action.closeModal}
+        redButton={function (): void {
+          throw new Error("Function not implemented.");
+        }}
+        redBtnLoading={false}
+        title={""}
+        from={""}
       />
     </>
   );

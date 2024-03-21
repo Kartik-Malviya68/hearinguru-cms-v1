@@ -1,4 +1,4 @@
-import { dummyData } from "../../_components/BlogTable/DummyData";
+// import { dummyData } from "../../_components/BlogTable/DummyData";
 import { api } from "../api";
 import BlogDataInstance from "../instance";
 

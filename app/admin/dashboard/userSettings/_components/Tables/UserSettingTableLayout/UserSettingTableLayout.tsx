@@ -10,7 +10,7 @@ import {
 import { Pagination, Table, Badge, Checkbox } from "flowbite-react";
 import React, { useState } from "react";
 import AdminTableColumn from "../Columns/AdminAndCallingTeamTableColumn";
-import { dummyData } from "@/app/admin/dashboard/manageWebsite/blogs/_components/BlogTable/DummyData";
+// import { dummyData } from "@/app/admin/dashboard/manageWebsite/blogs/_components/BlogTable/DummyData";
 import { adminTableDummyData } from "../dummydata";
 import Filters from "../../Filters/Filters";
 import { Dialog, Popover, Transition } from "@headlessui/react";
