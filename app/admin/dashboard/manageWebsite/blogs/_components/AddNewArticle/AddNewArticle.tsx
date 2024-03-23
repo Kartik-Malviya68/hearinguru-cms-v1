@@ -1,6 +1,6 @@
 import { Drawer } from "@mui/material";
 import { Button, Datepicker } from "flowbite-react";
-import React from "react";
+import React, { Fragment, useState } from "react";
 import { PiGlobeHemisphereWestFill } from "react-icons/pi";
 
 import { IoClose } from "react-icons/io5";
@@ -12,12 +12,38 @@ import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAs
 import addNewArticleBlog from "../../_fetch/services/addNewArticleBlog";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Combobox, Transition } from "@headlessui/react";
+
+import "react-toastify/dist/ReactToastify.css";
+import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import { useToggle } from "@/modules/StateManagement/useToggle/useToggle";
+import AddNewAutherModal from "@/components/Modals/AddNewAutherModal/AddNewAutherModal";
 interface Props {
   closeDrawer: () => void;
   openDrawer: boolean;
 }
 
 function AddNewArticle(props: Props) {
+  const people = [
+    { id: 1, name: "Wade Cooper" },
+    { id: 2, name: "Arlene Mccoy" },
+    { id: 3, name: "Devon Webb" },
+    { id: 4, name: "Tom Cook" },
+    { id: 5, name: "Tanya Fox" },
+    { id: 6, name: "Hellen Schmidt" },
+  ];
+  const [selected, setSelected] = useState(people[0]);
+  const [query, setQuery] = useState("");
+
+  const filteredPeople =
+    query === ""
+      ? people
+      : people.filter((person) =>
+          person.name
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .includes(query.toLowerCase().replace(/\s+/g, ""))
+        );
   const { closeDrawer, openDrawer } = props;
   const [image, actions, ms] = useStamina<{
     image: string | ArrayBuffer | null | undefined;
@@ -50,7 +76,7 @@ function AddNewArticle(props: Props) {
     reset,
     formState: { errors },
   } = useForm<BlogTypes.addNewArticleBlog>({});
-
+  const [openAddNewAutherModal, setOpenAddNewAutherModal] = useToggle(false);
   const [xstate, loading, fetcher] = useHandleAsync(addNewArticleBlog, {
     onSuccess: () => {
       // closeDrawer();
@@ -77,6 +103,10 @@ function AddNewArticle(props: Props) {
   return (
     <Drawer anchor="right" open={openDrawer} onClose={closeDrawer}>
       <ToastContainer />
+      <AddNewAutherModal
+        isOpen={openAddNewAutherModal}
+        closeModal={setOpenAddNewAutherModal.hide}
+      />
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="w-[706px]  flex pt-0 p-4 flex-col items-start gap-8 "
@@ -374,7 +404,100 @@ function AddNewArticle(props: Props) {
             </div>
           </div>
         </div>
+
         <div className="w-full">
+          <label
+            htmlFor="Name"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Search Auther
+          </label>
+          <div className="w-full flex-1 flex justify-between items-center">
+            <div className=" top-16 w-4/5">
+              <Combobox value={selected} onChange={setSelected}>
+                <div className="relative mt-1">
+                  <div className="bg-gray-50 border w-full text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <Combobox.Input
+                      className="bg-gray-50 border-none w-full  text-gray-900 text-sm rounded-lg  block p-2.5  "
+                      // displayValue={(person) => person.name}
+
+                      placeholder="Search Name"
+                      onChange={(event) => setQuery(event.target.value)}
+                    />
+                    {/* <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                          <ChevronDownIcon
+                            className="h-5 w-5 text-gray-400"
+                            aria-hidden="true"
+                          />
+                        </Combobox.Button> */}
+                  </div>
+                  <Transition
+                    as={Fragment}
+                    leave="transition ease-in duration-100"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                    afterLeave={() => setQuery("")}
+                  >
+                    <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                      {filteredPeople.length === 0 && query !== "" ? (
+                        <div className="relative cursor-default select-none px-4 py-2 text-gray-700">
+                          Nothing found.
+                        </div>
+                      ) : (
+                        filteredPeople.map((person) => (
+                          <Combobox.Option
+                            key={person.id}
+                            className={({ active }) =>
+                              `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                                active
+                                  ? "bg-blue-600 text-white"
+                                  : "text-gray-900"
+                              }`
+                            }
+                            value={person}
+                          >
+                            {({ selected, active }) => (
+                              <>
+                                <span
+                                  className={`block truncate ${
+                                    selected ? "font-medium" : "font-normal"
+                                  }`}
+                                >
+                                  {person.name}
+                                </span>
+                                {selected ? (
+                                  <span
+                                    className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+                                      active ? "text-white" : "text-teal-600"
+                                    }`}
+                                  >
+                                    <CheckIcon
+                                      className="h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
+                          </Combobox.Option>
+                        ))
+                      )}
+                    </Combobox.Options>
+                  </Transition>
+                </div>
+              </Combobox>
+            </div>
+            <Button onClick={setOpenAddNewAutherModal.show} color="blue">
+              Create New
+            </Button>
+          </div>
+          {/* {errors.patientDetails?.name && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.patientDetails.name.message}
+            </p>
+          )} */}
+        </div>
+        {/* <div className="w-full">
           <label
             htmlFor="Author Name"
             className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -395,41 +518,7 @@ function AddNewArticle(props: Props) {
               {errors.author?.name.message}
             </p>
           )}
-        </div>
-
-        <div className="w-full">
-          <div className=" mb-2 flex w-full justify-between items-center">
-            <h5 className="text-sm font-medium text-gray-900 dark:text-white">
-              About Author
-            </h5>
-            <p className="text-gray-500 text-xs leading-150">
-              A note for extra info
-            </p>
-          </div>
-
-          <div className="w-full mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
-            <div className="px-4 overflow-hidden rounded-lg py-2 bg-white rounded-t-lg dark:bg-gray-800">
-              <label htmlFor="comment" className="sr-only">
-                Your comment
-              </label>
-              <textarea
-                id="comment"
-                {...register("author.about", {
-                  required: "Please enter about author",
-                })}
-                rows={4}
-                className="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
-                placeholder="Write text here ..."
-                defaultValue={""}
-              />
-              {errors.author?.about && (
-                <p className="text-red-500 mt-1 text-xs">
-                  {errors.author?.about.message}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+        </div> */}
       </form>
     </Drawer>
   );

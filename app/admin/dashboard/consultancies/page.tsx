@@ -1,6 +1,6 @@
 "use client";
 import { Breadcrumb, Button, Datepicker } from "flowbite-react";
-import React, { useState } from "react";
+import React, { useState, Fragment } from "react";
 import { FaClipboardCheck } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { IoIosSearch } from "react-icons/io";
@@ -10,8 +10,33 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import createConsultancie from "../_fetch/services/createConsultancy";
 import { ToastContainer, toast } from "react-toastify";
+import { Combobox, Transition } from "@headlessui/react";
+
 import "react-toastify/dist/ReactToastify.css";
+import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import AddNewPatientModal from "@/components/Modals/AddNewPatientModal/AddNewPatientModal";
+import { useToggle } from "@/modules/StateManagement/useToggle/useToggle";
 export default function page() {
+  const people = [
+    { id: 1, name: "Wade Cooper" },
+    { id: 2, name: "Arlene Mccoy" },
+    { id: 3, name: "Devon Webb" },
+    { id: 4, name: "Tom Cook" },
+    { id: 5, name: "Tanya Fox" },
+    { id: 6, name: "Hellen Schmidt" },
+  ];
+  const [selected, setSelected] = useState(people[6]);
+  const [query, setQuery] = useState("");
+
+  const filteredPeople =
+    query === ""
+      ? people
+      : people.filter((person) =>
+          person.name
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .includes(query.toLowerCase().replace(/\s+/g, ""))
+        );
   const [show, actions] = useStamina({
     initialState: {
       show: false,
@@ -37,7 +62,7 @@ export default function page() {
     control,
     getValues,
   } = useForm<ConsultancyTypes.AddNewConsultancy>({});
-
+  const [opneAddNewPatientModal, setOpenAddNewPatientModal] = useToggle(false);
   const [xState, loading, fetcher] = useHandleAsync(createConsultancie, {
     onSuccess: () => {
       toast("Consultancy Created Successfully", { type: "success" });
@@ -87,6 +112,10 @@ export default function page() {
       onSubmit={handleSubmit(onSubmit)}
       className="relative w-full overflow-auto"
     >
+      <AddNewPatientModal
+        isOpen={opneAddNewPatientModal}
+        closeModal={setOpenAddNewPatientModal.hide}
+      />
       <ToastContainer />
       <div className="w-full p-8 pb-[39px] sticky top-0 z-20 bg-white  flex justify-between items-center">
         <div className="flex justify-between  items-center w-full">
@@ -124,28 +153,102 @@ export default function page() {
               </h4>
               <IoClose />
             </div>
+
             <div className="w-full">
               <label
                 htmlFor="Name"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
-                Name
+                Search Name
               </label>
-              <input
-                type="text"
-                id="Name"
-                {...register("patientDetails.name", {
-                  required: "Please enter your name",
-                })}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Add Name"
-              />
-              {errors.patientDetails?.name && (
+              <div className="w-full flex-1 flex justify-between items-center">
+                <div className=" top-16 w-4/5">
+                  <Combobox value={selected} onChange={setSelected}>
+                    <div className="relative mt-1">
+                      <div className="bg-gray-50 border w-full text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <Combobox.Input
+                          className="bg-gray-50 border-none w-full  text-gray-900 text-sm rounded-lg  block p-2.5  "
+                          // displayValue={(person) => person.name}
+
+                          placeholder="Search Name"
+                          onChange={(event) => setQuery(event.target.value)}
+                        />
+                        {/* <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                          <ChevronDownIcon
+                            className="h-5 w-5 text-gray-400"
+                            aria-hidden="true"
+                          />
+                        </Combobox.Button> */}
+                      </div>
+                      <Transition
+                        as={Fragment}
+                        leave="transition ease-in duration-100"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                        afterLeave={() => setQuery("")}
+                      >
+                        <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                          {filteredPeople.length === 0 && query !== "" ? (
+                            <div className="relative cursor-default select-none px-4 py-2 text-gray-700">
+                              Nothing found.
+                            </div>
+                          ) : (
+                            filteredPeople.map((person) => (
+                              <Combobox.Option
+                                key={person.id}
+                                className={({ active }) =>
+                                  `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                                    active
+                                      ? "bg-blue-600 text-white"
+                                      : "text-gray-900"
+                                  }`
+                                }
+                                value={person}
+                              >
+                                {({ selected, active }) => (
+                                  <>
+                                    <span
+                                      className={`block truncate ${
+                                        selected ? "font-medium" : "font-normal"
+                                      }`}
+                                    >
+                                      {person.name}
+                                    </span>
+                                    {selected ? (
+                                      <span
+                                        className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+                                          active
+                                            ? "text-white"
+                                            : "text-teal-600"
+                                        }`}
+                                      >
+                                        <CheckIcon
+                                          className="h-5 w-5"
+                                          aria-hidden="true"
+                                        />
+                                      </span>
+                                    ) : null}
+                                  </>
+                                )}
+                              </Combobox.Option>
+                            ))
+                          )}
+                        </Combobox.Options>
+                      </Transition>
+                    </div>
+                  </Combobox>
+                </div>
+                <Button onClick={setOpenAddNewPatientModal.show} color="blue">
+                  Create New
+                </Button>
+              </div>
+              {/* {errors.patientDetails?.name && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.patientDetails.name.message}
                 </p>
-              )}
+              )} */}
             </div>
+
             <div className="w-full">
               <label
                 htmlFor="ConsultationType"
