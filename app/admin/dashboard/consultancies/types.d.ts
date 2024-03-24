@@ -8,6 +8,16 @@ namespace ConsultancyTypes {
     slot: Date;
     status: string;
   }
+  interface AddNewPatient {
+    name: string;
+    patientId: string; // 8 len, 0-9 a-z
+    gender: "MALE" | "FEMALE";
+    age?: number;
+    phone?: string;
+    email?: string;
+    pincode?: number;
+    address?: string;
+  }
   // interface ConsultanciesTable {
   //   id: number;
   //   name: string;
@@ -30,17 +40,16 @@ namespace ConsultancyTypes {
   // }
 
   export interface ConsultancyDocument {
-    patientDetails: {
-      name: string;
-      phoneNumber: string;
-      email: string;
-    };
+    consultationId: string;
+    patientId: string;
     consultancyDetails: {
       type: ConsultancyType;
       specification?: ConsultancyTypeSpecification;
       message: string;
     };
     slot: {
+      date?: Date;
+      time?: string;
       dateTime: Date;
     };
     status: ConsultancyStatus;
@@ -106,36 +115,40 @@ namespace ConsultancyTypes {
   export interface ConsultancyTypeSpecification {
     company: string;
     hearingAidCategory: string;
-    issue: string;
-    status: string;
-    issueDetails: string;
+    issue: {
+      type: string;
+      details?: string;
+      isResolved: boolean;
+    };
   }
 
-  export interface AddNewConsultancy {
-    patientDetails: {
-      name: string;
-      phoneNumber: string;
-      email: string;
-    };
-    consultancyDetails: {
-      type: ConsultancyType;
-      specification?: ConsultancyTypeSpecification;
-      message: string;
-    };
+  // export interface AddNewConsultancy {
+  //   patientDetails: {
+  //     name: string;
+  //     phoneNumber: string;
+  //     email: string;
+  //   };
+  //   consultancyDetails: {
+  //     type: ConsultancyType;
+  //     specification?: ConsultancyTypeSpecification;
+  //     message: string;
+  //   };
 
-    slot: {
-      dateTime: Date;
-      date?: Date;
-      time?: string;
-    };
-    status: ConsultancyStatus;
-    attachments: AttachmentInformation[];
-    createdAt: Date;
-  }
+  //   slot: {
+  //     dateTime: Date;
+  //     date?: Date;
+  //     time?: string;
+  //   };
+  //   status: ConsultancyStatus;
+  //   attachments: AttachmentInformation[];
+  //   createdAt: Date;
+  // }
 
   interface State {
     loading: Record<string, AsyncState>;
     consultanciesAllData: ConsultanciesTable[];
     createConsultancy: createConsultancy[];
+    createPatient: createPatient[];
+    patientList: PatientList[];
   }
 }

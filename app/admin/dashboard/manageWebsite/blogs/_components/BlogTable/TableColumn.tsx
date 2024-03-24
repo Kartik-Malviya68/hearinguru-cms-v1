@@ -54,7 +54,7 @@ const columns = ({ setChecked }: { setChecked: (e: boolean) => void }) => {
             color={"blue"}
           />
         );
-      },  
+      },
       cell: ({ row }) => {
         return (
           <Checkbox
@@ -120,7 +120,11 @@ const columns = ({ setChecked }: { setChecked: (e: boolean) => void }) => {
                           cursor: "pointer",
                         }}
                         layout="fill"
-                        src={info.getValue() as string}
+                        src={
+                          info.getValue() === "null"
+                            ? "https://plus.unsplash.com/premium_photo-1710962184944-71cab934b562?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            : info.getValue().toString()
+                        }
                       />
                     </div>
                   </Popover.Button>
@@ -152,7 +156,11 @@ const columns = ({ setChecked }: { setChecked: (e: boolean) => void }) => {
                             className="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50"
                             href=""
                             onClick={() => {
-                              setSelected(info.getValue().toString()),
+                              setSelected(
+                                info.getValue().toString() === "null"
+                                  ? "https://plus.unsplash.com/premium_photo-1710962184944-71cab934b562?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                  : info.getValue().toString()
+                              ),
                                 openModal();
                               console.log(selected);
                             }}

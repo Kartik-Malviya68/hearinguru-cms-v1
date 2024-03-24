@@ -1,6 +1,6 @@
 import { Drawer } from "@mui/material";
 import { Button, Datepicker } from "flowbite-react";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { PiGlobeHemisphereWestFill } from "react-icons/pi";
 
 import { IoClose } from "react-icons/io5";
@@ -17,28 +17,36 @@ import { Combobox, Transition } from "@headlessui/react";
 import "react-toastify/dist/ReactToastify.css";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { useToggle } from "@/modules/StateManagement/useToggle/useToggle";
-import AddNewAutherModal from "@/components/Modals/AddNewAutherModal/AddNewAutherModal";
+import AddNewAutherModal from "@/components/Modals/AddNewAuthorModal/AddNewAuthorModal";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
+import dynamic from "next/dynamic";
+
+import * as commands from "@uiw/react-md-editor/commands";
+import getAuthorList from "../../_fetch/services/getAuthorList";
+
+const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 interface Props {
   closeDrawer: () => void;
   openDrawer: boolean;
 }
 
 function AddNewArticle(props: Props) {
-  const people = [
-    { id: 1, name: "Wade Cooper" },
-    { id: 2, name: "Arlene Mccoy" },
-    { id: 3, name: "Devon Webb" },
-    { id: 4, name: "Tom Cook" },
-    { id: 5, name: "Tanya Fox" },
-    { id: 6, name: "Hellen Schmidt" },
-  ];
-  const [selected, setSelected] = useState(people[0]);
-  const [query, setQuery] = useState("");
+  const [autherlist, aLoading, aFether] = useHandleAsync(getAuthorList);
+  useEffect(() => {
+    aFether();
+  }, []);
 
+  const people = autherlist;
+  console.log(autherlist);
+  const [value, setValue] = useState("");
+  const [selected, setSelected] = useState(people ? people[0] : null);
+  const [query, setQuery] = useState("");
+  console.log(selected);
   const filteredPeople =
     query === ""
       ? people
-      : people.filter((person) =>
+      : people?.filter((person) =>
           person.name
             .toLowerCase()
             .replace(/\s+/g, "")
@@ -92,7 +100,7 @@ function AddNewArticle(props: Props) {
     try {
       fetcher({
         ...data,
-
+        authorId: selected?.authorId || "",
         image:
           "https://plus.unsplash.com/premium_photo-1710795018356-4b22df77cf8f",
       });
@@ -255,9 +263,7 @@ function AddNewArticle(props: Props) {
             <option value="Prevention">Prevention</option>
           </select>
           {errors.category && (
-            <p className="text-red-500 mt-1 text-xs">
-              {errors.category.message}
-            </p>
+            <p className="text-red-500 mt-1 text-xs">Category is required</p>
           )}
         </div>
         <div className="w-full">
@@ -302,7 +308,7 @@ function AddNewArticle(props: Props) {
             Preference
           </label>
           <select
-            {...register("prefrence", { required: "Please enter preference" })}
+            {...register("prefrence")}
             id="Preference"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
@@ -316,6 +322,32 @@ function AddNewArticle(props: Props) {
             <p className="text-red-500 mt-1 text-xs">
               {errors.prefrence.message}
             </p>
+          )}
+        </div>
+        <div className="w-full">
+          <label
+            htmlFor="Author Name"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Body
+          </label>
+          <Controller
+            control={control}
+            name="body"
+            rules={{ required: "Please enter" }}
+            render={({ field }) => (
+              <MDEditor
+                value={value || ""}
+                onChange={(value) => {
+                  setValue(value || "");
+                  field.onChange(value);
+                }}
+              />
+            )}
+          />
+
+          {errors.body && (
+            <p className="text-red-500 mt-1 text-xs">{errors.body.message}</p>
           )}
         </div>
 
@@ -334,6 +366,7 @@ function AddNewArticle(props: Props) {
               <label htmlFor="comment" className="sr-only">
                 Your comment
               </label>
+
               <textarea
                 {...register("message", { required: "Please enter message" })}
                 id="comment"
@@ -419,8 +452,9 @@ function AddNewArticle(props: Props) {
                   <div className="bg-gray-50 border w-full text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <Combobox.Input
                       className="bg-gray-50 border-none w-full  text-gray-900 text-sm rounded-lg  block p-2.5  "
-                      // displayValue={(person) => person.name}
-
+                      displayValue={(selected: { name: string } | null) =>
+                        selected?.name || ""
+                      }
                       placeholder="Search Name"
                       onChange={(event) => setQuery(event.target.value)}
                     />
@@ -439,14 +473,14 @@ function AddNewArticle(props: Props) {
                     afterLeave={() => setQuery("")}
                   >
                     <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-                      {filteredPeople.length === 0 && query !== "" ? (
+                      {filteredPeople?.length === 0 && query !== "" ? (
                         <div className="relative cursor-default select-none px-4 py-2 text-gray-700">
                           Nothing found.
                         </div>
                       ) : (
-                        filteredPeople.map((person) => (
+                        filteredPeople?.map((person) => (
                           <Combobox.Option
-                            key={person.id}
+                            key={person.name}
                             className={({ active }) =>
                               `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
                                 active

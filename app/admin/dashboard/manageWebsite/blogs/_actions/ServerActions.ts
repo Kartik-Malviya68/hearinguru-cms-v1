@@ -10,6 +10,16 @@ export default class ServerActions extends ServerStateUtils<BlogTypes.State> {
       });
     }
   }
+  async fetchAuthorList() {
+    const res = await this.handleAsync("fetchAuthorList", () =>
+      this.fetchAuthorList()
+    );
+    if (res) {
+      this.mutateState((v) => {
+        v.authorList = res;
+      });
+    }
+  }
   async addNewArticleData() {
     const res = await this.handleAsync(
       "addNewArticleData",
@@ -19,6 +29,18 @@ export default class ServerActions extends ServerStateUtils<BlogTypes.State> {
     if (res) {
       this.mutateState((v) => {
         v.addNewArticleData = res;
+      });
+    }
+  }
+  async addNewAuthorData() {
+    const res = await this.handleAsync(
+      "addNewAutherData",
+      () => this.state.addNewAuthorData as any
+    );
+
+    if (res) {
+      this.mutateState((v) => {
+        v.addNewAuthorData = res;
       });
     }
   }

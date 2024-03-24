@@ -1,34 +1,32 @@
+import addNewPatient from "@/app/admin/dashboard/_fetch/services/AddNewPatient";
+import useHandleAsync from "@/modules/StateManagement/useHandleAsync/useHandleAsync";
 import { Dialog, Transition } from "@headlessui/react";
+import { error } from "console";
 import { Button } from "flowbite-react";
 import { Fragment, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 interface AddNewPatientModalProps {
   isOpen: boolean;
   closeModal: (value: boolean) => void;
 }
 
-interface AddNewPatien {
-  name: string;
-  patientId: string; // 5 len, 0-9 a-z
-  age: number;
-  gender: "MALE" | "FEMALE";
-  phone: string;
-  email?: string;
-  pincode: number;
-  address?: string;
-}
 function AddNewPatientModal(props: AddNewPatientModalProps) {
+  const [state, loading, fether] = useHandleAsync(addNewPatient, {
+    onSuccess: () => [toast.success("Patient Added Successfully")],
+    onError: () => toast.error("Failed to add patient"),
+  });
+
   const { isOpen, closeModal } = props;
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<AddNewPatien>();
+  } = useForm<ConsultancyTypes.AddNewPatient>();
 
-  const onSubmit: SubmitHandler<AddNewPatien> = (data) => {
-    console.log(data);
-    closeModal(false);
+  const onSubmit: SubmitHandler<ConsultancyTypes.AddNewPatient> = (data) => {
+    fether(data);
   };
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -92,7 +90,7 @@ function AddNewPatientModal(props: AddNewPatientModalProps) {
                       {...register("patientId", {
                         required: "Please enter a patient ID",
                         pattern: {
-                          value: /^[a-z0-9]{5}$/,
+                          value: /^[a-z0-9]{8}$/,
                           message: "Please enter a valid patient ID",
                         },
                       })}
@@ -116,7 +114,6 @@ function AddNewPatientModal(props: AddNewPatientModalProps) {
                     </label>
                     <input
                       {...register("age", {
-                        required: "Please enter a age",
                         pattern: {
                           value: /^[0-9]{1,3}$/,
                           message: "Please enter a valid age",
@@ -142,9 +139,7 @@ function AddNewPatientModal(props: AddNewPatientModalProps) {
                       Patient Gender
                     </label>
                     <select
-                      {...register("gender", {
-                        required: "Please select gender",
-                      })}
+                      {...register("gender")}
                       id="age"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     >
@@ -169,7 +164,6 @@ function AddNewPatientModal(props: AddNewPatientModalProps) {
                     </label>
                     <input
                       {...register("phone", {
-                        required: "Please enter a phone number",
                         pattern: {
                           value: /^[0-9]{10}$/,
                           message: "Please enter a valid phone number",
@@ -216,7 +210,6 @@ function AddNewPatientModal(props: AddNewPatientModalProps) {
                     </label>
                     <input
                       {...register("pincode", {
-                        required: "Please enter a pincode",
                         pattern: {
                           value: /^[0-9]{6}$/,
                           message: "Please enter a valid pincode",
@@ -241,7 +234,7 @@ function AddNewPatientModal(props: AddNewPatientModalProps) {
                       Patient address
                     </label>
                     <textarea
-                      {...register("address", {})}
+                      {...register("address")}
                       id="address"
                       rows={4}
                       className="w-full mb-2 text-sm font-medium text-gray-900 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
@@ -251,6 +244,7 @@ function AddNewPatientModal(props: AddNewPatientModalProps) {
                   </div>
                   <Button
                     onClick={handleSubmit(onSubmit)}
+                    isProcessing={loading.isLoading()}
                     fullSized
                     color="blue"
                     size={"md"}

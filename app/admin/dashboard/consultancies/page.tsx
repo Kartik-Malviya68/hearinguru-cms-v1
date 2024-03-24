@@ -1,6 +1,6 @@
 "use client";
 import { Breadcrumb, Button, Datepicker } from "flowbite-react";
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import { FaClipboardCheck } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { IoIosSearch } from "react-icons/io";
@@ -16,18 +16,21 @@ import "react-toastify/dist/ReactToastify.css";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import AddNewPatientModal from "@/components/Modals/AddNewPatientModal/AddNewPatientModal";
 import { useToggle } from "@/modules/StateManagement/useToggle/useToggle";
+import getAllPatientList from "../_fetch/services/getPatientList";
 export default function page() {
-  const people = [
-    { id: 1, name: "Wade Cooper" },
-    { id: 2, name: "Arlene Mccoy" },
-    { id: 3, name: "Devon Webb" },
-    { id: 4, name: "Tom Cook" },
-    { id: 5, name: "Tanya Fox" },
-    { id: 6, name: "Hellen Schmidt" },
-  ];
+  const [list, listLoading, fetchList] = useHandleAsync(getAllPatientList);
+  useEffect(() => {
+    fetchList();
+  }, []);
+
+  const people = Object.entries(list?.data || {}).map(([key, value]) => ({
+    patientId: value.patientId,
+    name: value.name,
+  }));
+
   const [selected, setSelected] = useState(people[6]);
   const [query, setQuery] = useState("");
-
+  console.log(selected, "selected");
   const filteredPeople =
     query === ""
       ? people
@@ -61,8 +64,10 @@ export default function page() {
     reset,
     control,
     getValues,
-  } = useForm<ConsultancyTypes.AddNewConsultancy>({});
+  } = useForm<ConsultancyTypes.ConsultancyDocument>({});
   const [opneAddNewPatientModal, setOpenAddNewPatientModal] = useToggle(false);
+
+  console.log(list?.data, "list");
   const [xState, loading, fetcher] = useHandleAsync(createConsultancie, {
     onSuccess: () => {
       toast("Consultancy Created Successfully", { type: "success" });
@@ -74,7 +79,7 @@ export default function page() {
   });
 
   console.log(loading);
-  const onSubmit: SubmitHandler<ConsultancyTypes.AddNewConsultancy> = (
+  const onSubmit: SubmitHandler<ConsultancyTypes.ConsultancyDocument> = (
     data
   ) => {
     try {
@@ -85,7 +90,7 @@ export default function page() {
       console.log(time, "time");
       fetcher({
         ...data,
-
+        patientId: selected.patientId,
         slot: {
           dateTime: new Date(mergedDate),
         },
@@ -93,17 +98,6 @@ export default function page() {
     } catch (error) {
       console.log(error);
     }
-
-    // getValues().consultancyDetails.type === "repair and maintenance" &&
-    //   router.push(
-    //     "/admin/dashboard/consultancies/repairConsultancySpecification"
-    //   );
-    // getValues().consultancyDetails.type === "appointment" &&
-    //   router.push("/admin/dashboard/consultancies/appointmentSpecification");
-    // getValues().consultancyDetails.type === "warranty & exchange" &&
-    //   router.push(
-    //     "/admin/dashboard/consultancies/warrantyConsultancySpecification"
-    //   );
     console.log(data, "data");
   };
 
@@ -163,16 +157,23 @@ export default function page() {
               </label>
               <div className="w-full flex-1 flex justify-between items-center">
                 <div className=" top-16 w-4/5">
+                  {/* <Controller
+                    control={control}
+                    name="patientId"
+                    render={({ field: { onChange, value } }) => ( */}
                   <Combobox value={selected} onChange={setSelected}>
                     <div className="relative mt-1">
                       <div className="bg-gray-50 border w-full text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <Combobox.Input
                           className="bg-gray-50 border-none w-full  text-gray-900 text-sm rounded-lg  block p-2.5  "
-                          // displayValue={(person) => person.name}
-
+                          displayValue={(patient: {
+                            patient: string;
+                            name: string;
+                          }) => patient.name} // Replace 'PersonType' with the actual type of 'person'
                           placeholder="Search Name"
                           onChange={(event) => setQuery(event.target.value)}
                         />
+
                         {/* <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
                           <ChevronDownIcon
                             className="h-5 w-5 text-gray-400"
@@ -195,7 +196,7 @@ export default function page() {
                           ) : (
                             filteredPeople.map((person) => (
                               <Combobox.Option
-                                key={person.id}
+                                key={person.patientId}
                                 className={({ active }) =>
                                   `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
                                     active
@@ -237,6 +238,8 @@ export default function page() {
                       </Transition>
                     </div>
                   </Combobox>
+                  {/* )}
+                  /> */}
                 </div>
                 <Button onClick={setOpenAddNewPatientModal.show} color="blue">
                   Create New
@@ -373,14 +376,17 @@ export default function page() {
                     Select Issue
                   </label>
                   <select
-                    {...register("consultancyDetails.specification.issue", {
-                      required: "Please select an issue",
-                    })}
+                    {...register(
+                      "consultancyDetails.specification.issue.type",
+                      {
+                        required: "Please select an issue",
+                      }
+                    )}
                     id="SelectIssue"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option disabled selected value="">
-                      Select Hearing Aid Issue
+                    <option disabled selected value="Fixing Battery Doors">
+                      Select Issue
                     </option>
                     <option value="Fixing Battery Doors">
                       Fixing Battery Doors
@@ -408,7 +414,7 @@ export default function page() {
                     </p>
                   )}
                 </div>
-                <div className="w-full">
+                {/* <div className="w-full">
                   <label
                     htmlFor="SelectStatus"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -434,7 +440,7 @@ export default function page() {
                       {errors.consultancyDetails?.specification?.status.message}
                     </p>
                   )}
-                </div>
+                </div> */}
                 <div className="w-full">
                   <div className=" mb-2 flex w-full justify-between items-center">
                     <h5 className="text-sm font-medium text-gray-900 dark:text-white">
@@ -452,7 +458,7 @@ export default function page() {
                       </label>
                       <textarea
                         {...register(
-                          "consultancyDetails.specification.issueDetails",
+                          "consultancyDetails.specification.issue.details",
                           {
                             required: "Please enter a message",
                           }
@@ -463,12 +469,12 @@ export default function page() {
                         placeholder="Write text here ..."
                         defaultValue={""}
                       />
-                      {errors.consultancyDetails?.specification
-                        ?.issueDetails && (
+                      {errors.consultancyDetails?.specification?.issue
+                        ?.details && (
                         <p className="text-red-500 text-xs mt-1">
                           {
-                            errors.consultancyDetails?.specification
-                              ?.issueDetails.message
+                            errors.consultancyDetails?.specification.issue
+                              .details.message
                           }
                         </p>
                       )}
@@ -537,7 +543,7 @@ export default function page() {
                 </div>
               </div>
             )}
-            <div className="w-full">
+            {/* <div className="w-full">
               <label
                 htmlFor="ContactNumber"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -566,8 +572,8 @@ export default function page() {
                   {errors.patientDetails?.phoneNumber.message}
                 </p>
               )}
-            </div>
-            <div className="w-full">
+            </div> */}
+            {/* <div className="w-full">
               <label
                 htmlFor="Email"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -592,7 +598,7 @@ export default function page() {
                   {errors.patientDetails.email.message}
                 </p>
               )}
-            </div>
+            </div> */}
             <div className="w-full">
               <label
                 htmlFor="Email"
